@@ -1,0 +1,158 @@
+/*
+	This file is part of solidity.
+
+	solidity is free software: you can redistribute it and/or modify
+	it under the terms of the GNU General Public License as published by
+	the Free Software Foundation, either version 3 of the License, or
+	(at your option) any later version.
+
+	solidity is distributed in the hope that it will be useful,
+	but WITHOUT ANY WARRANTY; without even the implied warranty of
+	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+	GNU General Public License for more details.
+
+	You should have received a copy of the GNU General Public License
+	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+syntax = "proto2";
+
+/// Types
+message BoolType {}
+
+message IntegerType {
+    required bool is_signed = 1;
+    required uint32 width = 2;
+}
+
+message FixedByteType {
+    required uint32 width = 1;
+}
+
+message DynByteArrayType {
+    enum Type {
+        BYTES = 1;
+        STRING = 2;
+    }
+    required Type t = 1;
+}
+
+message Type {
+    oneof type_oneof {
+        BoolType bool = 1;
+        IntegerType int = 2;
+        FixedByteType bytesn = 3;
+        DynByteArrayType dynbyte = 4;
+    }
+}
+
+message VarDecl {
+    required Type t = 1;
+}
+
+/// Expressions
+message Expression {
+    oneof expr_oneof {
+        Literal lit = 1;
+        BinaryOp bop = 2;
+        UnaryOp uop = 3;
+        VarRef ref = 4;
+    }
+}
+
+message VarRef {
+    required int32 varnum = 1;
+}
+
+message Literal {
+    oneof literal_oneof {
+        bool blit = 1;
+        string slit = 2;
+    }
+}
+
+message BinaryOp {
+    enum Operation {
+        ADD = 1;
+        SUB = 2;
+        MUL = 3;
+        DIV = 4;
+    }
+    required Operation op = 1;
+    required Expression arg1 = 2;
+    required Expression arg2 = 3;
+}
+
+message UnaryOp {
+    enum Operation {
+        INC = 1;
+        DEC = 2;
+    }
+    required Operation op = 1;
+    required Expression arg = 2;
+}
+
+/// Statements
+message ElseStmt {
+    required Block statements = 1;
+}
+
+message IfStmt {
+    required Expression condition = 1;
+    required Block statements = 2;
+    optional ElseStmt else = 3;
+}
+
+message ForStmt {
+    required Block pre = 1;
+    required Expression condition = 2;
+    required Block post = 3;
+    required Block body = 4;
+}
+
+message CaseStmt {
+    required Literal lit = 1;
+    required Block block = 2;
+}
+
+message SwitchStmt {
+    required Expression condition = 1;
+    repeated CaseStmt cases = 2;
+    optional Block default = 3;
+}
+
+message BreakStmt {}
+
+message ContinueStmt {}
+
+message ReturnStmt {
+    required Expression value = 1;
+}
+
+message DoStmt {
+    required Expression condition = 1;
+    required Block statements = 2;
+}
+
+message WhileStmt {
+    required Expression condition = 1;
+    required Block statements = 2;
+}
+
+message Statement {
+    oneof stmt_oneof {
+        VarDecl var = 1;
+        IfStmt if = 2;
+        ForStmt for = 3;
+        SwitchStmt switch = 4;
+        BreakStmt break = 5;
+        ContinueStmt continue = 6;
+        ReturnStmt return = 7;
+        DoStmt do = 8;
+        WhileStmt while = 9;
+    }
+}
+
+message Block {
+    repeated Statement statements = 1;
+}
