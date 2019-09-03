@@ -19,6 +19,11 @@ PragmaDirective
 
 Pragma directive for the contract definition, only version requirements in the form `pragma solidity "^0.4.0";` are supported.
 
+ImportDirective "file"
+======================
+
+Import directive for referencing other files / source objects.
+
 ContractDefinition "ContractName"
 =================================
 
@@ -124,9 +129,12 @@ Brace-enclosed block containing zero or more statements.
 
 Child nodes:
 
-- ``ExpressionStatement`` (multiple)
-- ``ForStatement`` (multiple)
-- ``EmitStatement`` (multiple)
+- ``ExpressionStatement``
+- ``ForStatement``
+- ``EmitStatement``
+- ``VariableDeclarationStatement``
+- ``WhileStatement``
+- ``Return``
 
 ExpressionStatement
 ===================
@@ -136,6 +144,31 @@ A statement that contains one expression (i.e., an assignment, function call, et
 Child nodes:
 
 - ``FunctionCall`` (multiple)
+- ``UnaryOperation``
+- Assignment
+
+Assignment
+==========
+
+Assignment, can also be a compound assignment, e.g., (a = 7 + 8) or (a *= 2)
+
+Fields:
+
+- Type
+
+Child nodes:
+
+- Identifier
+- MemberAccess
+
+EmitStatement
+=============
+
+The emit statement is used to emit events.
+
+- Child nodes:
+
+- ``FunctionCall``
 
 FunctionCall
 ============
@@ -149,6 +182,29 @@ Child nodes:
 - Identifier
 - BinaryOperation
 - Literal
+- UnaryOperation
+- ForStatement
+
+.. TODO: maybe switch items after node type under heading in some way?
+
+Return "identifier"
+===================
+
+Return statement to return a variable value.
+
+Child nodes:
+
+- Identifier
+
+Break
+=====
+
+A break statement that terminates the current loop, switch, or label statement and transfers program control to the statement following the terminated statement.
+
+Continue
+========
+
+A continue statement that terminates execution of the statement in the current iteration of the current loop, and continues execution of the loop with the next iteration.
 
 Identifier "identifier"
 =======================
@@ -160,6 +216,65 @@ An identifier, i.e., a reference to a declaration by name, such as a variable or
 Fields:
 
 - Type
+
+
+UnaryOperation "(pre or postfix) operation"
+===========================================
+
+Operation involving a unary operator, pre- or postfix. For example: ``++i``, ``delete x`` or ``!true``
+
+Fields:
+
+- Type
+
+Child nodes:
+
+- Identifier
+
+ForStatement
+============
+
+For loop statement.
+
+Child nodes:
+
+- VariableDeclarationStatement
+- BinaryOperation
+- ExpressionStatement
+- Block
+
+WhileStatement
+==============
+
+While loop statement.
+
+- BinaryOperation
+- Block
+
+IfStatement
+===========
+If statement with an optional "else" part. Note that "else if" is modeled by having a new if statement as the false (else) body.
+
+Child nodes:
+
+-  ``BinaryOperation``
+- ``Block``
+
+VariableDeclarationStatement
+============================
+
+Definition of one or more variables as a statement inside a function. If multiple variables are declared, a value has to be assigned directly. If only a single variable is declared, the value can be missing.
+
+Examples:
+
+- ``uint[] memory a; uint a = 2;``
+- ``(uint a, bytes32 b, ) = f();``
+- ``(, uint a, , StructName storage x) = g();``
+
+Child nodes:
+
+- VariableDeclaration
+- Literal
 
 BinaryOperation
 ===============
@@ -187,7 +302,7 @@ Fields:
 MemberAccess something?
 =======================
 
-Access to a member of an object. For example: `x.name`.
+Access to a member of an object. For example: ``x.name``.
 
 Fields:
 
@@ -200,7 +315,7 @@ Child nodes:
 IndexAccess something?
 ======================
 
-Index access to an array or mapping. For example: `a[2]`.
+Index access to an array or mapping. For example: ``a[2]``.
 
 Fields:
 
@@ -210,50 +325,30 @@ Child nodes:
 
 - Identifier
 
----
-
-VariableDeclarationStatement
-============================
-
-Definition of one or more variables as a statement inside a function. If multiple variables are declared, a value has to be assigned directly. If only a single variable is declared, the value can be missing.
-
-Examples:
-uint[] memory a; uint a = 2;
-(uint a, bytes32 b, ) = f(); (, uint a, , StructName storage x) = g();
-
-
-
-
-
-
-Return
-======
-Break
-=====
-Continue
-========
-
-
-
-
-
-UnaryOperation
-==============
-Operation involving a unary operator, pre- or postfix.
-Examples: ++i, delete x or !true
-
-
-
-
-
-ForStatement
-============
-For loop statement
-
-WhileStatement
-==============
-IfStatement
-===========
-If-statement with an optional "else" part. Note that "else if" is modeled by having a new if-statement as the false (else) body.
-EmitStatement
+NewExpression
 =============
+
+Expression that creates a new contract or memory-array, e.g., the "new SomeContract" part in "new SomeContract(1, 2)".
+
+Fields:
+
+- Type
+
+Child nodes:
+
+- UserDefinedTypeName
+
+TupleExpression
+===============
+
+Tuple, parenthesized expression, or bracketed expression, e.g., (1, 2), (x,), (x), (), [1, 2]. Individual components might be empty shared pointers (as in the second example).
+
+The respective types in lvalue context are: 2-tuple, 2-tuple (with wildcard), type of x, 0-tuple. Not in lvalue context: 2-tuple, _1_-tuple, type of x, 0-tuple.
+
+Fields:
+
+- Type
+
+Child nodes:
+
+- Literal
