@@ -4,6 +4,8 @@ Abstract syntax tree (AST)
 
 This guide documents the Solidity abstract syntax tree (AST), representing the abstract structure of code written in Solidity. It describes each node in the tree, parameters, and potential direct children.
 
+.. TODO: Abstract classes from h file? Are they appended?
+
 Common fields
 -------------
 
@@ -34,6 +36,15 @@ Child nodes
 
 All other nodes.
 
+UsingForDirective
+=================
+
+``using LibraryName for variable`` directive that attaches all functions from the library LibraryName the variable if the first parameter matches the type. ``using LibraryName for *`` attaches the function to any matching type.
+
+Child nodes:
+
+- ``UserDefinedTypeName``
+
 CallableDeclaration
 ===================
 
@@ -59,6 +70,11 @@ ModifierDefinition "modifierName"
 
 Definition of a function modifier and its name. Uses the same parameters and child nodes as ``CallableDeclaration``.
 
+ModifierInvocation
+==================
+
+.. TODO
+
 ParameterList
 =============
 
@@ -77,6 +93,20 @@ Definition of a ``struct`` variable and its name.
 Child nodes:
 
 - ``VariableDeclaration`` "VariableName" (multiple)
+
+EnumDefinition "VariableName"
+===============================
+
+Definition of a ``enum`` variable and its name.
+
+Child nodes:
+
+- ``EnumValue`` "VariableName" (multiple)
+
+EnumValue
+=========
+
+Declaration of an Enum Value.
 
 VariableDeclaration "VariableName"
 ==================================
@@ -117,6 +147,18 @@ Child nodes:
 
 - ``UserDefinedTypeName`` "VariableName"
 
+MappingTypeName
+===============
+
+.. TODO: Actually exist?
+
+FunctionTypeName
+================
+
+..  A literal function type. Its source form is "function (paramType1, paramType2) internal / external returns (retType1, retType2)"
+
+.. TODO
+
 UserDefinedTypeName "VariableName"
 ==================================
 
@@ -150,7 +192,7 @@ Child nodes:
 Assignment
 ==========
 
-Assignment, can also be a compound assignment, e.g., (a = 7 + 8) or (a *= 2)
+Assignment, can also be a compound assignment, e.g., ``(a = 7 + 8)`` or ``(a *= 2)``
 
 Fields:
 
@@ -352,3 +394,27 @@ Fields:
 Child nodes:
 
 - Literal
+
+PrimaryExpression
+=================
+
+.. TODO
+
+ElementaryTypeNameExpression
+============================
+
+.. TODO: Needed?
+
+InlineAssembly
+==============
+
+Inline assembly.
+
+.. TODO
+
+Throw
+=====
+
+.. The Throw statement to throw that triggers a solidity exception(jump to ErrorTag)
+
+.. TODO
