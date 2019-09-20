@@ -29,9 +29,9 @@ Import directive for referencing other files / source objects.
 ContractDefinition "ContractName"
 =================================
 
-The definition of a contract or library, followed by the name of the contract. This is the only AST node where child nodes are not visited in document order. It first visits all struct declarations, then all variable declarations and finally all function declarations.
+The definition of a contract or library, followed by the name of the contract. This is the only AST node where Fields are not visited in document order. It first visits all struct declarations, then all variable declarations and finally all function declarations.
 
-Child nodes
+Fields
 ~~~~~~~~~~~
 
 All other nodes.
@@ -41,7 +41,7 @@ UsingForDirective
 
 ``using LibraryName for variable`` directive that attaches all functions from the library LibraryName the variable if the first parameter matches the type. ``using LibraryName for *`` attaches the function to any matching type.
 
-Child nodes:
+Fields:
 
 - ``UserDefinedTypeName``
 
@@ -50,7 +50,7 @@ CallableDeclaration
 
 Base class for all nodes that define function-like objects, i.e., ``FunctionDefinition``, ``EventDefinition`` and ``ModifierDefinition``.
 
-Child nodes:
+Fields:
 
 - ``ParameterList``
 - ``Block``
@@ -58,17 +58,17 @@ Child nodes:
 FunctionDefinition "FunctionName"
 =================================
 
-Definition of a function and its name. Uses the same parameters and child nodes as ``CallableDeclaration``.
+Definition of a function and its name. Uses the same parameters and Fields as ``CallableDeclaration``.
 
 EventDefinition "EventName"
 ===========================
 
-Definition of an event and its name. Uses the same parameters and child nodes as ``CallableDeclaration``.
+Definition of an event and its name. Uses the same parameters and Fields as ``CallableDeclaration``.
 
 ModifierDefinition "modifierName"
 =================================
 
-Definition of a function modifier and its name. Uses the same parameters and child nodes as ``CallableDeclaration``.
+Definition of a function modifier and its name. Uses the same parameters and Fields as ``CallableDeclaration``.
 
 ModifierInvocation
 ==================
@@ -81,7 +81,7 @@ ParameterList
 A list of function parameters and return variables. Does not include mappings.
 .. TODO: And structs?
 
-Child nodes:
+Fields:
 
 - ``VariableDeclaration`` "VariableName" (multiple)
 
@@ -90,7 +90,7 @@ StructDefinition "VariableName"
 
 Definition of a ``struct`` variable and its name.
 
-Child nodes:
+Fields:
 
 - ``VariableDeclaration`` "VariableName" (multiple)
 
@@ -99,7 +99,7 @@ EnumDefinition "VariableName"
 
 Definition of a ``enum`` variable and its name.
 
-Child nodes:
+Fields:
 
 - ``EnumValue`` "VariableName" (multiple)
 
@@ -117,7 +117,7 @@ Fields:
 
 ``Type``: Variable type including any size
 
-Child nodes:
+Fields:
 
 - ``Mapping`` "MappingName"
 - ``ElementaryTypeName`` "BaseType"
@@ -128,7 +128,7 @@ Mapping "MappingName"
 
 A mapping type and its name.
 
-Child nodes:
+Fields:
 
 - ``ElementaryTypeName`` "BaseType"
 - ``UserDefinedTypeName`` "VariableName"
@@ -143,7 +143,7 @@ ArrayTypeName
 
 An array type that can be empty or contain an expression.
 
-Child nodes:
+Fields:
 
 - ``UserDefinedTypeName`` "VariableName"
 
@@ -159,17 +159,20 @@ FunctionTypeName
 
 .. TODO
 
+InheritanceSpecifier
+====================
+
 UserDefinedTypeName "VariableName"
 ==================================
 
-A user-defined type (i.e., a struct, contract, etc.).
+A user-defined type imported as another symbol name, or inherited from another contract. For example, ``import {symbol1 as alias, symbol2} from "filename"``, or ``contract mortal is owned``
 
 Block
 =====
 
 Brace-enclosed block containing zero or more statements.
 
-Child nodes:
+Fields:
 
 - ``ExpressionStatement``
 - ``ForStatement``
@@ -183,7 +186,7 @@ ExpressionStatement
 
 A statement that contains one expression (i.e., an assignment, function call, etc.).
 
-Child nodes:
+Fields:
 
 - ``FunctionCall`` (multiple)
 - ``UnaryOperation``
@@ -198,7 +201,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - Identifier
 - MemberAccess
@@ -208,7 +211,7 @@ EmitStatement
 
 The emit statement is used to emit events.
 
-- Child nodes:
+- Fields:
 
 - ``FunctionCall``
 
@@ -219,7 +222,7 @@ FunctionCall
 
 A function call, type cast or struct construction.
 
-Child nodes:
+Fields:
 
 - Identifier
 - BinaryOperation
@@ -234,7 +237,7 @@ Return "identifier"
 
 Return statement to return a variable value.
 
-Child nodes:
+Fields:
 
 - Identifier
 
@@ -269,7 +272,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - Identifier
 
@@ -278,7 +281,7 @@ ForStatement
 
 For loop statement.
 
-Child nodes:
+Fields:
 
 - VariableDeclarationStatement
 - BinaryOperation
@@ -297,7 +300,7 @@ IfStatement
 ===========
 If statement with an optional "else" part. Note that "else if" is modeled by having a new if statement as the false (else) body.
 
-Child nodes:
+Fields:
 
 -  ``BinaryOperation``
 - ``Block``
@@ -313,7 +316,7 @@ Examples:
 - ``(uint a, bytes32 b, ) = f();``
 - ``(, uint a, , StructName storage x) = g();``
 
-Child nodes:
+Fields:
 
 - VariableDeclaration
 - Literal
@@ -327,7 +330,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - Identifier
 - MemberAccess
@@ -350,7 +353,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - IndexAccess
 
@@ -363,7 +366,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - Identifier
 
@@ -376,7 +379,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - UserDefinedTypeName
 
@@ -391,7 +394,7 @@ Fields:
 
 - Type
 
-Child nodes:
+Fields:
 
 - Literal
 
