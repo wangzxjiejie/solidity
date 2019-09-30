@@ -78,6 +78,7 @@ private:
 	void endVisit(Continue const& _node) override;
 
 	void visitAssert(FunctionCall const& _funCall);
+	void internalFunctionCall(FunctionCall const& _funCall);
 	void unknownFunctionCall(FunctionCall const& _funCall);
 	//@}
 
@@ -85,6 +86,7 @@ private:
 	//@{
 	void reset();
 	void eraseKnowledge();
+	void clearIndices(ContractDefinition const* _contract, FunctionDefinition const* _function = nullptr) override;
 	bool shouldVisit(ContractDefinition const& _contract) const;
 	bool shouldVisit(FunctionDefinition const& _function) const;
 	void setCurrentBlock(smt::SymbolicFunctionVariable const& _block, std::vector<smt::Expression> const* _arguments = nullptr);
@@ -96,6 +98,9 @@ private:
 	smt::SortPointer interfaceSort();
 	smt::SortPointer sort(FunctionDefinition const& _function);
 	smt::SortPointer sort(ASTNode const* _block);
+	// Sort for function calls. This is:
+	// (stateVarsSorts inputSorts outputSorts stateVarSorts)
+	smt::SortPointer summarySort(FunctionDefinition const& _function);
 	//@}
 
 	/// Predicate helpers.
@@ -103,6 +108,8 @@ private:
 	/// @returns a new block of given _sort and _name.
 	std::unique_ptr<smt::SymbolicFunctionVariable> createSymbolicBlock(smt::SortPointer _sort, std::string const& _name);
 
+	/// Genesis predicate.
+	smt::Expression genesis() { return (*m_genesisPredicate)({}); }
 	/// Interface predicate over current variables.
 	smt::Expression interface();
 	/// Error predicate over current variables.
@@ -111,6 +118,8 @@ private:
 
 	/// Creates a block for the given _node.
 	std::unique_ptr<smt::SymbolicFunctionVariable> createBlock(ASTNode const* _node, std::string const& _prefix = "");
+	// Creates a call block for the given function _node.
+	std::unique_ptr<smt::SymbolicFunctionVariable> createSummaryBlock(FunctionDefinition const* _node);
 
 	/// Creates a new error block to be used by an assertion.
 	/// Also registers the predicate.
@@ -118,6 +127,10 @@ private:
 
 	void connectBlocks(smt::Expression const& _from, smt::Expression const& _to, smt::Expression const& _constraints = smt::Expression(true));
 
+	/// @returns the symbolic values of the state variables at the beginning
+	/// of the current transaction.
+	std::vector<smt::Expression> initialStateVariables();
+	std::vector<smt::Expression> stateVariablesAtIndex(int _index);
 	/// @returns the current symbolic values of the current state variables.
 	std::vector<smt::Expression> currentStateVariables();
 
@@ -134,6 +147,10 @@ private:
 	smt::Expression predicate(smt::SymbolicFunctionVariable const& _block);
 	/// @returns a predicate application over @param _arguments.
 	smt::Expression predicate(smt::SymbolicFunctionVariable const& _block, std::vector<smt::Expression> const& _arguments);
+	/// @returns the summary predicate for the called function.
+	smt::Expression predicate(FunctionCall const& _funCall);
+	/// @returns a predicate that defines a function summary.
+	smt::Expression summary(FunctionDefinition const& _function);
 	//@}
 
 	/// Solver related.
@@ -167,6 +184,16 @@ private:
 	/// Artificial Error predicate.
 	/// Single error block for all assertions.
 	std::unique_ptr<smt::SymbolicFunctionVariable> m_errorPredicate;
+
+	/// Function predicates.
+	std::map<FunctionDefinition const*, std::unique_ptr<smt::SymbolicFunctionVariable>> m_summaries;
+
+	smt::SymbolicIntVariable m_error{
+		TypeProvider::uint256(),
+		TypeProvider::uint256(),
+		"error",
+		m_context
+	};
 	//@}
 
 	/// Variables.
@@ -185,6 +212,9 @@ private:
 
 	/// Assertions proven safe.
 	std::set<Expression const*> m_safeAssertions;
+	
+	std::map<FunctionDefinition const*, smt::Expression> m_functionErrors;
+	std::vector<smt::Expression> m_targets;
 	//@}
 
 	/// Control-flow.
@@ -204,7 +234,6 @@ private:
 	smt::SymbolicFunctionVariable const* m_breakDest = nullptr;
 	/// Block where a loop continue should go to.
 	smt::SymbolicFunctionVariable const* m_continueDest = nullptr;
-	//@}
 
 	/// CHC solver.
 	std::shared_ptr<smt::CHCSolverInterface> m_interface;
