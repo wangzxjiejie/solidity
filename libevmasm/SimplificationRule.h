@@ -21,6 +21,7 @@
 #pragma once
 
 #include <functional>
+#include <libevmasm/Instruction.h>
 
 namespace dev
 {
@@ -52,6 +53,12 @@ struct SimplificationRule
 	std::function<Pattern()> action;
 	bool removesNonConstants;
 	std::function<bool()> feasible;
+};
+
+struct EVMBuiltins
+{
+	static auto constexpr ADD = Instruction::ADD;
+
 };
 
 }

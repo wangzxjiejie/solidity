@@ -1037,12 +1037,18 @@ void CompilerStack::generateEWasm(ContractDefinition const& _contract)
 		yul::EVMDialect::strictAssemblyForEVMObjects(m_evmVersion)
 	).run(*evmStack.parserResult());
 
+	cout << "=============== ewasm ================" << endl;
+	cout << ewasmObject.toString(false) << endl;
+
 	// Re-inject into an assembly stack for the eWasm dialect
 	yul::AssemblyStack ewasmStack(m_evmVersion, yul::AssemblyStack::Language::EWasm, m_optimiserSettings);
 	// TODO this is a hack for now - provide as structured AST!
 	ewasmStack.parseAndAnalyze("", "{}");
 	*ewasmStack.parserResult() = move(ewasmObject);
 	ewasmStack.optimize();
+
+	cout << "=============== ewasm OPT ================" << endl;
+	cout << ewasmStack.parserResult()->toString(false) << endl;
 
 	//cout << yul::AsmPrinter{}(*ewasmStack.parserResult()->code) << endl;
 
