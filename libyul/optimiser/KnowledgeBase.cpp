@@ -47,7 +47,7 @@ bool KnowledgeBase::knownToBeDifferent(YulString _a, YulString _b)
 	return false;
 }
 
-bool KnowledgeBase::knownToBeDifferentByAtLeast32(YulString _a, YulString _b)
+bool KnowledgeBase::knownToBeDifferentByAtLeastConstant(YulString _a, YulString _b, unsigned _amount)
 {
 	// Try to use the simplification rules together with the
 	// current values to turn `sub(_a, _b)` into a constant whose absolute value is at least 32.
@@ -56,7 +56,7 @@ bool KnowledgeBase::knownToBeDifferentByAtLeast32(YulString _a, YulString _b)
 	if (expr1.type() == typeid(Literal))
 	{
 		u256 val = valueOfLiteral(boost::get<Literal>(expr1));
-		return val >= 32 && val <= u256(0) - 32;
+		return val >= _amount && val <= u256(0) - _amount;
 	}
 
 	return false;

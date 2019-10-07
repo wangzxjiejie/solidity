@@ -470,10 +470,11 @@ function mload(x1, x2, x3, x4) -> z1, z2, z3, z4 {
 }
 function mstore(x1, x2, x3, x4, y1, y2, y3, y4) {
 	let pos := u256_to_i32ptr(x1, x2, x3, x4)
-	i64.store(pos, endian_swap(x1))
-	i64.store(i64.add(pos, 8), endian_swap(x2))
-	i64.store(i64.add(pos, 16), endian_swap(x3))
-	i64.store(i64.add(pos, 24), endian_swap(x4))
+
+	i64.store(pos, endian_swap(y1))
+	i64.store(i64.add(pos, 8), endian_swap(y2))
+	i64.store(i64.add(pos, 16), endian_swap(y3))
+	i64.store(i64.add(pos, 24), endian_swap(y4))
 }
 function mstore8(x1, x2, x3, x4, y1, y2, y3, y4) {
 	// TODO implement

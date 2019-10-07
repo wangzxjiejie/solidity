@@ -129,7 +129,7 @@ protected:
 	bool inScope(YulString _variableName) const;
 
 	boost::optional<std::pair<YulString, YulString>> isSimpleStore(
-		dev::eth::Instruction _store,
+		bool _toStorage,
 		ExpressionStatement const& _statement
 	) const;
 
