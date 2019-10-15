@@ -52,8 +52,8 @@ add_library(yul
 	backends/wasm/EWasmToText.h
 	backends/wasm/LEBEncoder.cpp
 	backends/wasm/LEBEncoder.h
-	backends/wasm/TextToBinary.cpp
-	backends/wasm/TextToBinary.h
+	backends/wasm/BinaryTransform.cpp
+	backends/wasm/BinaryTransform.h
 	backends/wasm/WasmDialect.cpp
 	backends/wasm/WasmDialect.h
 	backends/wasm/WordSizeTransform.cpp

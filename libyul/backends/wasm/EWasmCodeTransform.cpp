@@ -21,6 +21,7 @@
 #include <libyul/backends/wasm/EWasmCodeTransform.h>
 
 #include <libyul/backends/wasm/EWasmToText.h>
+#include <libyul/backends/wasm/BinaryTransform.h>
 #include <libyul/optimiser/NameCollector.h>
 
 #include <libyul/AsmData.h>
@@ -55,6 +56,8 @@ string EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
 	std::vector<wasm::FunctionImport> imports;
 	for (auto& imp: transform.m_functionsToImport)
 		imports.emplace_back(std::move(imp.second));
+
+	cout << "WASMBIN " << toHex(wasm::BinaryTransform().run(transform.m_globalVariables, imports, functions)) << endl;
 	return EWasmToText().run(
 		transform.m_globalVariables,
 		imports,
