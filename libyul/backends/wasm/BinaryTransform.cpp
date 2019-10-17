@@ -228,7 +228,7 @@ bytes BinaryTransform::operator()(Literal const& _literal)
 
 bytes BinaryTransform::operator()(StringLiteral const&)
 {
-	yulAssert(false, "String literals not yet implemented");
+	//yulAssert(false, "String literals not yet implemented");
 	// TODO is this used?
 	return opcode(Opcode::I64Const) + lebEncode(0);
 }
@@ -245,6 +245,13 @@ bytes BinaryTransform::operator()(GlobalVariable const& _variable)
 
 bytes BinaryTransform::operator()(BuiltinCall const& _call)
 {
+	if (_call.functionName == "datasize")
+		// TODO
+		return opcode(Opcode::I64Const) + lebEncode(0x100);
+	else if (_call.functionName == "dataoffset")
+		// TODO
+		return opcode(Opcode::I64Const) + lebEncode(0);
+
 	bytes args = visit(_call.arguments);
 
 	if (
@@ -315,15 +322,14 @@ bytes BinaryTransform::operator()(Loop const& _loop)
 	return result;
 }
 
-bytes BinaryTransform::operator()(Break const& _break)
+bytes BinaryTransform::operator()(Break const&)
 {
 	// TOOD the index is just the nesting depth.
 	return {};
 }
 
-bytes BinaryTransform::operator()(Continue const&)
+bytes BinaryTransform::operator()(BreakIf const&)
 {
-	yulAssert(false, "Continue does not exist in wasm.");
 	// TOOD the index is just the nesting depth.
 	return {};
 }
