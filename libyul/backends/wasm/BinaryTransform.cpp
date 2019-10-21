@@ -268,7 +268,7 @@ bytes BinaryTransform::operator()(BuiltinCall const& _call)
 		_call.functionName.find(".load") != string::npos ||
 		_call.functionName.find(".store") != string::npos
 	)
-		return std::move(args) + bytes{builtins.at(_call.functionName), 0, 0};
+		return std::move(args) + bytes{builtins.at(_call.functionName), 3, 0};
 	else if (_call.functionName == "unreachable")
 		return opcode(Opcode::Unreachable);
 	else
