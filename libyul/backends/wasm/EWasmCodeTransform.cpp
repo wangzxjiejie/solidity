@@ -40,8 +40,9 @@ using namespace yul;
 
 string EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
 {
+	wasm::Module module;
+
 	EWasmCodeTransform transform(_dialect, _ast);
-	vector<wasm::FunctionDefinition> functions;
 
 	for (auto const& statement: _ast.statements)
 	{
@@ -50,19 +51,15 @@ string EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
 			"Expected only function definitions at the highest level."
 		);
 		if (statement.type() == typeid(yul::FunctionDefinition))
-			functions.emplace_back(transform.translateFunction(boost::get<yul::FunctionDefinition>(statement)));
+			module.functions.emplace_back(transform.translateFunction(boost::get<yul::FunctionDefinition>(statement)));
 	}
 
-	std::vector<wasm::FunctionImport> imports;
 	for (auto& imp: transform.m_functionsToImport)
-		imports.emplace_back(std::move(imp.second));
+		module.imports.emplace_back(std::move(imp.second));
+	module.globals = transform.m_globalVariables;
 
-	cout << "WASMBIN " << toHex(wasm::BinaryTransform().run(transform.m_globalVariables, imports, functions)) << endl;
-	return EWasmToText().run(
-		transform.m_globalVariables,
-		imports,
-		functions
-	);
+	cout << "WASMBIN " << toHex(wasm::BinaryTransform().run(module)) << endl;
+	return EWasmToText().run(module);
 }
 
 wasm::Expression EWasmCodeTransform::generateMultiAssignment(

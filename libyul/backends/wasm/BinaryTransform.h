@@ -35,11 +35,7 @@ namespace wasm
 class BinaryTransform: public boost::static_visitor<dev::bytes>
 {
 public:
-	dev::bytes run(
-		std::vector<wasm::GlobalVariableDeclaration> const& _globals,
-		std::vector<wasm::FunctionImport> const& _imports,
-		std::vector<wasm::FunctionDefinition> const& _functions
-	);
+	dev::bytes run(Module const& _module);
 
 	dev::bytes operator()(wasm::Literal const& _literal);
 	dev::bytes operator()(wasm::StringLiteral const& _literal);

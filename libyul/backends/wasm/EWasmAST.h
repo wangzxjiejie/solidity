@@ -86,6 +86,14 @@ struct FunctionDefinition
 	std::vector<Expression> body;
 };
 
+struct Module
+{
+	std::vector<GlobalVariableDeclaration> globals;
+	std::vector<FunctionImport> imports;
+	std::vector<FunctionDefinition> functions;
+	// TODO data
+	std::map<std::string, Module> subModules;
+};
 
 }
 }

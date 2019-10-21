@@ -202,30 +202,31 @@ bytes lebEncodeSigned(int64_t _n)
 		return bytes(1, uint8_t(0x80 | uint8_t(_n & 0x7f))) + lebEncodeSigned(_n / 0x80);
 }
 
-bytes BinaryTransform::run(
-	vector<GlobalVariableDeclaration> const& _globals,
-	vector<FunctionImport> const& _imports,
-	vector<FunctionDefinition> const& _functions
-)
+}
+
+bytes BinaryTransform::run(Module const& _module)
 {
 	m_globals.clear();
-	for (size_t i = 0; i < _globals.size(); ++i)
-		m_globals[_globals[i].variableName] = i;
+	for (size_t i = 0; i < _module.globals.size(); ++i)
+		m_globals[_module.globals[i].variableName] = i;
 	m_functions.clear();
 	size_t funID = 0;
-	for (FunctionImport const& fun: _imports)
+	for (FunctionImport const& fun: _module.imports)
 		m_functions[fun.internalName] = funID++;
-	for (FunctionDefinition const& fun: _functions)
+	for (FunctionDefinition const& fun: _module.functions)
 		m_functions[fun.name] = funID++;
 
 	bytes ret{0, 'a', 's', 'm'};
 	ret += bytes{1, 0, 0, 0};
-	ret += typeSection(_imports, _functions);
-	ret += importSection(_imports);
-	ret += functionSection(_functions);
+	ret += typeSection(_module.imports, _module.functions);
+	ret += importSection(_module.imports);
+	ret += functionSection(_module.functions);
 	ret += memorySection();
 	ret += exportSection();
-	ret += codeSection(_functions);
+//	for (auto const& sub: _module.subModules)
+//		// TODO should we prefix and / or shorten the name?
+//		ret += customSection(sub.first, BinaryTransform::run(sub.second));
+	ret += codeSection(_module.functions);
 	return ret;
 }
 
