@@ -400,8 +400,8 @@ uint8_t BinaryTransform::encodeType(string const& _typeName)
 		return uint8_t(ValueType::I32);
 	else if (_typeName == "i64")
 		return uint8_t(ValueType::I64);
-//	else
-	//		yulAssert(false, "");
+	else
+		yulAssert(false, "");
 	return 0;
 }
 
