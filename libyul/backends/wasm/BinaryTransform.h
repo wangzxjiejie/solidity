@@ -68,6 +68,7 @@ private:
 	dev::bytes functionSection(std::vector<wasm::FunctionDefinition> const& _functions);
 	dev::bytes memorySection();
 	dev::bytes exportSection();
+	dev::bytes customSection(std::string const& _name, dev::bytes _data);
 	dev::bytes codeSection(std::vector<wasm::FunctionDefinition> const& _functions);
 
 	dev::bytes visit(std::vector<wasm::Expression> const& _expressions);

@@ -35,6 +35,7 @@ namespace
 
 enum class Section: uint8_t
 {
+	CUSTOM = 0x00,
 	TYPE = 0x01,
 	IMPORT = 0x02,
 	FUNCTION = 0x03,
@@ -478,6 +479,12 @@ bytes BinaryTransform::exportSection()
 	result += encode("memory") + bytes(1, uint8_t(Export::Memory)) + lebEncode(0);
 	result += encode("main") + bytes(1, uint8_t(Export::Function)) + lebEncode(m_functions.at("main"));
 	return bytes(1, uint8_t(Section::EXPORT)) + prefixSize(std::move(result));
+}
+
+bytes BinaryTransform::customSection(string const& _name, bytes _data)
+{
+	bytes result = encode(_name) + std::move(_data);
+	return bytes(1, uint8_t(Section::CUSTOM)) + prefixSize(std::move(result));
 }
 
 bytes BinaryTransform::codeSection(vector<wasm::FunctionDefinition> const& _functions)
