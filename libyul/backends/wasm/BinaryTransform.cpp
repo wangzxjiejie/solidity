@@ -192,6 +192,14 @@ bytes lebEncode(uint64_t _n)
 	return encoded;
 }
 
+bytes lebEncodeSigned(int64_t _n)
+{
+	if (_n >= 0 && _n < 0x40)
+		return bytes(1, uint8_t(uint64_t(_n) & 0xff));
+	else if (-_n > 0 && -_n < 0x40)
+		return bytes(1, uint8_t(uint64_t(_n + 0x80) & 0xff));
+	else
+		return bytes(1, uint8_t(0x80 | uint8_t(_n & 0x7f))) + lebEncodeSigned(_n / 0x80);
 }
 
 bytes BinaryTransform::run(
@@ -223,14 +231,15 @@ bytes BinaryTransform::run(
 
 bytes BinaryTransform::operator()(Literal const& _literal)
 {
-	return opcode(Opcode::I64Const) + lebEncode(_literal.value);
+	//cout << "enc " << to_string(_literal.value) << " - > " << toHex(lebEncodeSigned(_literal.value)) << endl;
+	return opcode(Opcode::I64Const) + lebEncodeSigned(_literal.value);
 }
 
 bytes BinaryTransform::operator()(StringLiteral const&)
 {
 	//yulAssert(false, "String literals not yet implemented");
 	// TODO is this used?
-	return opcode(Opcode::I64Const) + lebEncode(0);
+	return opcode(Opcode::I64Const) + lebEncodeSigned(0);
 }
 
 bytes BinaryTransform::operator()(LocalVariable const& _variable)
@@ -247,10 +256,10 @@ bytes BinaryTransform::operator()(BuiltinCall const& _call)
 {
 	if (_call.functionName == "datasize")
 		// TODO
-		return opcode(Opcode::I64Const) + lebEncode(0x100);
+		return opcode(Opcode::I64Const) + lebEncodeSigned(0x11);
 	else if (_call.functionName == "dataoffset")
 		// TODO
-		return opcode(Opcode::I64Const) + lebEncode(0);
+		return opcode(Opcode::I64Const) + lebEncodeSigned(0x11);
 
 	bytes args = visit(_call.arguments);
 
