@@ -570,12 +570,20 @@ string const& CompilerStack::yulIROptimized(string const& _contractName) const
 	return contract(_contractName).yulIROptimized;
 }
 
-string const& CompilerStack::eWasm(string const& _contractName) const
+std::string const& CompilerStack::eWasm(string const& _contractName) const
 {
 	if (m_stackState != CompilationSuccessful)
 		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Compilation was not successful."));
 
 	return contract(_contractName).eWasm;
+}
+
+eth::LinkerObject const& CompilerStack::eWasmObject(string const& _contractName) const
+{
+	if (m_stackState != CompilationSuccessful)
+		BOOST_THROW_EXCEPTION(CompilerError() << errinfo_comment("Compilation was not successful."));
+
+	return contract(_contractName).eWasmObject;
 }
 
 eth::LinkerObject const& CompilerStack::object(string const& _contractName) const
@@ -1053,7 +1061,9 @@ void CompilerStack::generateEWasm(ContractDefinition const& _contract)
 	//cout << yul::AsmPrinter{}(*ewasmStack.parserResult()->code) << endl;
 
 	// Turn into eWasm text representation.
-	compiledContract.eWasm = ewasmStack.assemble(yul::AssemblyStack::Machine::eWasm).assembly;
+	auto result = ewasmStack.assemble(yul::AssemblyStack::Machine::eWasm);
+	compiledContract.eWasm = std::move(result.assembly);
+	compiledContract.eWasmObject = std::move(*result.bytecode);
 }
 
 CompilerStack::Contract const& CompilerStack::contract(string const& _contractName) const

@@ -20,8 +20,6 @@
 
 #include <libyul/backends/wasm/EWasmCodeTransform.h>
 
-#include <libyul/backends/wasm/EWasmToText.h>
-#include <libyul/backends/wasm/BinaryTransform.h>
 #include <libyul/optimiser/NameCollector.h>
 
 #include <libyul/AsmData.h>
@@ -38,7 +36,7 @@ using namespace std;
 using namespace dev;
 using namespace yul;
 
-string EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
+wasm::Module EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
 {
 	wasm::Module module;
 
@@ -58,8 +56,7 @@ string EWasmCodeTransform::run(Dialect const& _dialect, yul::Block const& _ast)
 		module.imports.emplace_back(std::move(imp.second));
 	module.globals = transform.m_globalVariables;
 
-	cout << "WASMBIN " << toHex(wasm::BinaryTransform().run(module)) << endl;
-	return EWasmToText().run(module);
+	return module;
 }
 
 wasm::Expression EWasmCodeTransform::generateMultiAssignment(

@@ -207,27 +207,28 @@ bytes lebEncodeSigned(int64_t _n)
 
 bytes BinaryTransform::run(Module const& _module)
 {
-	m_globals.clear();
+	BinaryTransform bt;
+
 	for (size_t i = 0; i < _module.globals.size(); ++i)
-		m_globals[_module.globals[i].variableName] = i;
-	m_functions.clear();
+		bt.m_globals[_module.globals[i].variableName] = i;
+
 	size_t funID = 0;
 	for (FunctionImport const& fun: _module.imports)
-		m_functions[fun.internalName] = funID++;
+		bt.m_functions[fun.internalName] = funID++;
 	for (FunctionDefinition const& fun: _module.functions)
-		m_functions[fun.name] = funID++;
+		bt.m_functions[fun.name] = funID++;
 
 	bytes ret{0, 'a', 's', 'm'};
 	ret += bytes{1, 0, 0, 0};
-	ret += typeSection(_module.imports, _module.functions);
-	ret += importSection(_module.imports);
-	ret += functionSection(_module.functions);
-	ret += memorySection();
-	ret += exportSection();
-//	for (auto const& sub: _module.subModules)
+	ret += bt.typeSection(_module.imports, _module.functions);
+	ret += bt.importSection(_module.imports);
+	ret += bt.functionSection(_module.functions);
+	ret += bt.memorySection();
+	ret += bt.exportSection();
+	for (auto const& sub: _module.subModules)
 //		// TODO should we prefix and / or shorten the name?
-//		ret += customSection(sub.first, BinaryTransform::run(sub.second));
-	ret += codeSection(_module.functions);
+		ret += bt.customSection(sub.first, BinaryTransform::run(sub.second));
+	ret += bt.codeSection(_module.functions);
 	return ret;
 }
 
@@ -483,6 +484,7 @@ bytes BinaryTransform::exportSection()
 
 bytes BinaryTransform::customSection(string const& _name, bytes _data)
 {
+	cout << "Adding custom section of size " << _data.size() << endl;
 	bytes result = encode(_name) + std::move(_data);
 	return bytes(1, uint8_t(Section::CUSTOM)) + prefixSize(std::move(result));
 }
