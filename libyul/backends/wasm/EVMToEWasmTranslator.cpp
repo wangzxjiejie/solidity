@@ -654,6 +654,7 @@ Object EVMToEWasmTranslator::run(Object const& _object)
 		ast.statements.emplace_back(ASTCopier{}.translate(st));
 
 	Object ret;
+	ret.name = _object.name;
 	ret.code = make_shared<Block>(move(ast));
 	ret.analysisInfo = make_shared<AsmAnalysisInfo>();
 
