@@ -48,7 +48,7 @@ namespace
 {
 static string const polyfill{R"({
 function or_bool(a, b, c, d) -> r {
-	r := i64.ne(0, i64.or(i64.or(a, b), i64.or(c, d)))
+	r := i64.or(i64.or(a, b), i64.or(c, d))
 }
 // returns a + y + c plus carry value on 64 bit values.
 // c should be at most 1
@@ -205,9 +205,7 @@ function cmp(a, b) -> r {
 	switch i64.lt_u(a, b)
 	case 1 { r := 0xffffffffffffffff }
 	default {
-		switch i64.gt_u(a, b)
-		case 1 { r := 1 }
-		default { r := 0 }
+		r := i64.ne(a, b)
 	}
 }
 
@@ -218,10 +216,7 @@ function lt(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
 		case 0 {
 			switch cmp(x3, y3)
 			case 0 {
-				switch cmp(x4, y4)
-				case 0 { z4 := 0 }
-				case 1 { z4 := 0 }
-				default { z4 := 1 }
+				z4 := i64.lt_u(x4, y4)
 			}
 			case 1 { z4 := 0 }
 			default { z4 := 1 }
@@ -245,13 +240,78 @@ function sgt(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
 	z1, z2, z3, z4 := slt(y1, y2, y3, y4, x1, x2, x3, x4)
 }
 
-function shl(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
-	// TODO implement
-	unreachable()
+function shl_single(a, amount) -> x, y {
+	// amount < 64
+	x := i64.shr_u(a, i64.sub(64, amount))
+	y := i64.shl(a, amount)
 }
+
+function shl(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
+	if i64.and(i64.eqz(x1), i64.eqz(x2)) {
+		if i64.eqz(x3) {
+			if i64.lt_u(x4, 256) {
+				if i64.ge_u(x4, 128) {
+					y1 := y3
+					y2 := y4
+					y3 := 0
+					y4 := 0
+					x4 := i64.sub(x4, 128)
+				}
+				if i64.ge_u(x4, 64) {
+					y1 := y2
+					y2 := y3
+					y3 := y4
+					y4 := 0
+					x4 := i64.sub(x4, 64)
+				}
+				let t, r
+				t, z4 := shl_single(y4, x4)
+				r, z3 := shl_single(y3, x4)
+				z3 := i64.or(z3, t)
+				t, z2 := shl_single(y2, x4)
+				z2 := i64.or(z2, r)
+				r, z1 := shl_single(y1, x4)
+				z1 := i64.or(z1, t)
+			}
+		}
+	}
+}
+
+function shr_single(a, amount) -> x, y {
+	// amount < 64
+	y := i64.shl(a, i64.sub(64, amount))
+	x := i64.shr_u(a, amount)
+}
+
 function shr(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
-	// TODO implement
-	unreachable()
+	if i64.and(i64.eqz(x1), i64.eqz(x2)) {
+		if i64.eqz(x3) {
+			if i64.lt_u(x4, 256) {
+				if i64.ge_u(x4, 128) {
+					y4 := y2
+					y3 := y1
+					y2 := 0
+					y1 := 0
+					x4 := i64.sub(x4, 128)
+				}
+				if i64.ge_u(x4, 64) {
+					y4 := y3
+					y3 := y2
+					y2 := y1
+					y1 := 0
+					x4 := i64.sub(x4, 64)
+				}
+				let t
+				z4, t := shr_single(y4, x4)
+				z3, t := shr_single(y3, x4)
+				z4 := i64.or(z4, t)
+				z2, t := shr_single(y2, x4)
+				z3 := i64.or(z3, t)
+				z1, t := shr_single(y1, x4)
+				z2 := i64.or(z2, t)
+			}
+		}
+	}
 }
 function sar(x1, x2, x3, x4, y1, y2, y3, y4) -> z1, z2, z3, z4 {
 	// TODO implement
