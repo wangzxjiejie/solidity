@@ -209,7 +209,16 @@ wasm::Expression EWasmCodeTransform::operator()(yul::Instruction const&)
 
 wasm::Expression EWasmCodeTransform::operator()(If const& _if)
 {
-	return wasm::If{visit(*_if.condition), visit(_if.body.statements), {}};
+	// TODO converting i64 to i32 might not always be needed.
+
+	vector<wasm::Expression> args;
+	args.emplace_back(visitReturnByValue(*_if.condition));
+	args.emplace_back(wasm::Literal{0});
+	return wasm::If{
+		make_unique<wasm::Expression>(wasm::BuiltinCall{"i64.ne", std::move(args)}),
+		visit(_if.body.statements),
+		{}
+	};
 }
 
 wasm::Expression EWasmCodeTransform::operator()(Switch const& _switch)
