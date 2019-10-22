@@ -226,8 +226,13 @@ bytes BinaryTransform::run(Module const& _module)
 	ret += bt.memorySection();
 	ret += bt.exportSection();
 	for (auto const& sub: _module.subModules)
-//		// TODO should we prefix and / or shorten the name?
-		ret += bt.customSection(sub.first, BinaryTransform::run(sub.second));
+	{
+		// TODO should we prefix and / or shorten the name?
+		bytes data = BinaryTransform::run(sub.second);
+		size_t length = data.size();
+		ret += bt.customSection(sub.first, std::move(data));
+		bt.m_subModulePosAndSize[sub.first] = {ret.size() - length, length};
+	}
 	ret += bt.codeSection(_module.functions);
 	return ret;
 }
@@ -257,12 +262,16 @@ bytes BinaryTransform::operator()(GlobalVariable const& _variable)
 
 bytes BinaryTransform::operator()(BuiltinCall const& _call)
 {
-	if (_call.functionName == "datasize")
-		// TODO
-		return opcode(Opcode::I64Const) + lebEncodeSigned(0x11);
-	else if (_call.functionName == "dataoffset")
-		// TODO
-		return opcode(Opcode::I64Const) + lebEncodeSigned(0x11);
+	if (_call.functionName == "dataoffset")
+	{
+		string name = boost::get<StringLiteral>(_call.arguments.at(0)).value;
+		return opcode(Opcode::I64Const) + lebEncodeSigned(m_subModulePosAndSize.at(name).first);
+	}
+	else if (_call.functionName == "datasize")
+	{
+		string name = boost::get<StringLiteral>(_call.arguments.at(0)).value;
+		return opcode(Opcode::I64Const) + lebEncodeSigned(m_subModulePosAndSize.at(name).second);
+	}
 
 	bytes args = visit(_call.arguments);
 
@@ -484,7 +493,6 @@ bytes BinaryTransform::exportSection()
 
 bytes BinaryTransform::customSection(string const& _name, bytes _data)
 {
-	cout << "Adding custom section of size " << _data.size() << endl;
 	bytes result = encode(_name) + std::move(_data);
 	return bytes(1, uint8_t(Section::CUSTOM)) + prefixSize(std::move(result));
 }

@@ -82,6 +82,7 @@ private:
 	std::map<std::string, size_t> m_functions;
 	std::map<std::string, size_t> m_functionTypes;
 	std::stack<std::string> m_labels;
+	std::map<std::string, std::pair<size_t, size_t>> m_subModulePosAndSize;
 };
 
 
