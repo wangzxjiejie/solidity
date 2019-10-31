@@ -50,6 +50,8 @@ WasmDialect::WasmDialect():
 	m_functions["i64.gt_u"_yulstring].returns.front() = "i32"_yulstring;
 	m_functions["i64.le_u"_yulstring].returns.front() = "i32"_yulstring;
 	m_functions["i64.ge_u"_yulstring].returns.front() = "i32"_yulstring;
+	m_functions["i64.eq"_yulstring].returns.front() = "i32"_yulstring;
+	m_functions["i64.ne"_yulstring].returns.front() = "i32"_yulstring;
 
 	addFunction("i64.eqz", 1, 1);
 	m_functions["i64.eqz"_yulstring].returns.front() = "i32"_yulstring;
