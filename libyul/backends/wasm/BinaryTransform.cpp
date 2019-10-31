@@ -491,7 +491,7 @@ bytes BinaryTransform::globalSection()
 	for (size_t i = 0; i < m_globals.size(); ++i)
 		result +=
 			// mutable i64
-			bytes{uint8_t(ValueType::I64), 1},
+			bytes{uint8_t(ValueType::I64), 1} +
 			opcode(Opcode::I64Const) +
 			lebEncodeSigned(0) +
 			opcode(Opcode::End);
