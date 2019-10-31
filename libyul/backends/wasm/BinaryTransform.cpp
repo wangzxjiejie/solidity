@@ -259,7 +259,7 @@ bytes BinaryTransform::operator()(LocalVariable const& _variable)
 
 bytes BinaryTransform::operator()(GlobalVariable const& _variable)
 {
-	return opcode(Opcode::LocalGet) + lebEncode(m_globals.at(_variable.name));
+	return opcode(Opcode::GlobalGet) + lebEncode(m_globals.at(_variable.name));
 }
 
 bytes BinaryTransform::operator()(BuiltinCall const& _call)
