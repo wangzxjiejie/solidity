@@ -40,6 +40,7 @@ enum class Section: uint8_t
 	IMPORT = 0x02,
 	FUNCTION = 0x03,
 	MEMORY = 0x05,
+	GLOBAL = 0x06,
 	EXPORT = 0x07,
 	CODE = 0x0a
 };
@@ -224,6 +225,7 @@ bytes BinaryTransform::run(Module const& _module)
 	ret += bt.importSection(_module.imports);
 	ret += bt.functionSection(_module.functions);
 	ret += bt.memorySection();
+	ret += bt.globalSection();
 	ret += bt.exportSection();
 	for (auto const& sub: _module.subModules)
 	{
@@ -481,6 +483,20 @@ bytes BinaryTransform::memorySection()
 	result.push_back(0); // flags
 	result.push_back(1); // initial
 	return bytes(1, uint8_t(Section::MEMORY)) + prefixSize(std::move(result));
+}
+
+bytes BinaryTransform::globalSection()
+{
+	bytes result = lebEncode(m_globals.size());
+	for (size_t i = 0; i < m_globals.size(); ++i)
+		result +=
+			// mutable i64
+			bytes{uint8_t(ValueType::I64), 1},
+			opcode(Opcode::I64Const) +
+			lebEncodeSigned(0) +
+			opcode(Opcode::End);
+
+	return bytes(1, uint8_t(Section::GLOBAL)) + prefixSize(std::move(result));
 }
 
 bytes BinaryTransform::exportSection()
