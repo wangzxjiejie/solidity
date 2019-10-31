@@ -52,6 +52,7 @@ wasm::Module EWasmObjectCompiler::run(Object& _object)
 		else
 			yulAssert(false, "Data is not yet supported for EWasm.");
 
-	cout << "WASMBIN " << dev::toHex(wasm::BinaryTransform::run(module)) << endl;
+	cout << "WASMText " << dev::toHex(wasm::BinaryTransform::run(module)) << endl;
+	cout << "WASMBIN " << EWasmToText().run(module) << endl;
 	return module;
 }
