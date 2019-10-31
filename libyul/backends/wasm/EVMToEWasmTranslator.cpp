@@ -426,7 +426,8 @@ function returndatasize() -> z1, z2, z3, z4 {
 }
 function returndatacopy(x1, x2, x3, x4, y1, y2, y3, y4, z1, z2, z3, z4) {
 	eth.returnDataCopy(
-		u256_to_i32ptr(x1, x2, x3, x4),
+		// scratch - TODO: overflow check
+		i64.add(u256_to_i32ptr(x1, x2, x3, x4), 64),
 		u256_to_i32(y1, y2, y3, y4),
 		u256_to_i32(z1, z2, z3, z4)
 	)
@@ -669,13 +670,15 @@ function selfdestruct(a1, a2, a3, a4) {
 
 function return(x1, x2, x3, x4, y1, y2, y3, y4) {
 	eth.finish(
-		u256_to_i32ptr(x1, x2, x3, x4),
+		// scratch - TODO: overflow check
+		i64.add(u256_to_i32ptr(x1, x2, x3, x4), 64),
 		u256_to_i32(y1, y2, y3, y4)
 	)
 }
 function revert(x1, x2, x3, x4, y1, y2, y3, y4) {
 	eth.revert(
-		u256_to_i32ptr(x1, x2, x3, x4),
+		// scratch - TODO: overflow check
+		i64.add(u256_to_i32ptr(x1, x2, x3, x4), 64),
 		u256_to_i32(y1, y2, y3, y4)
 	)
 }
