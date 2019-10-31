@@ -15,6 +15,9 @@
 	along with solidity.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <string>
+#include <test/tools/ossfuzz/solProto.pb.h>
+
 namespace dev
 {
 namespace test
@@ -27,11 +30,21 @@ public:
 	ProtoConverter() {}
 	ProtoConverter(ProtoConverter const&) = delete;
 	ProtoConverter(ProtoConverter&&) = delete;
-	std::string protoToSolidity(Block const&);
+	std::string protoToSolidity(Program const&);
 private:
-
+	std::string visit(Program const&);
+	std::string visit(Block const&);
+	std::string visit(Statement const&);
+	std::string visit(VarDecl const&);
+	std::string visit(IfStmt const&);
+	std::string visit(ForStmt const&);
+	std::string visit(SwitchStmt const&);
+	std::string visit(BreakStmt const&);
+	std::string visit(ContinueStmt const&);
+	std::string visit(ReturnStmt const&);
+	std::string visit(DoStmt const&);
+	std::string visit(WhileStmt const&);
 };
 }
 }
-
 }

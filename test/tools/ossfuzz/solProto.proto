@@ -156,3 +156,12 @@ message Statement {
 message Block {
     repeated Statement statements = 1;
 }
+
+message Program {
+    enum Type {
+        LIBRARY = 0;
+        CONTRACT = 1;
+    }
+    required Block block = 1;
+    required Type type = 2;
+}
