@@ -280,23 +280,18 @@ bool ReferencesResolver::visit(InlineAssembly const& _inlineAssembly)
 	ErrorReporter errorsIgnored(errors);
 	yul::ExternalIdentifierAccess::Resolver resolver =
 	[&](yul::Identifier const& _identifier, yul::IdentifierContext, bool _crossesFunctionBoundary) {
+		vector<Declaration const*> declarations;
+		optional<string> enumValue;
 		vector<string> path;
 		boost::split(path, _identifier.name.str(), [](auto c) { return c == '.'; });
-		if (path.size() > 1)
+		if (path.size() == 2)
 		{
-			string memberName = std::move(path.back());
-			path.pop_back();
-			if (auto const* enumDeclaration = dynamic_cast<EnumDefinition const*>(m_resolver.pathFromCurrentScope(path)))
-				if (auto members = enumDeclaration->type()->members(nullptr).membersByName(memberName); !members.empty())
-				{
-					solAssert(members.size() == 1, "");
-					solAssert(memberName == members.front().name, "");
-					_inlineAssembly.annotation().externalReferences[&_identifier].enumValue = memberName;
-					_inlineAssembly.annotation().externalReferences[&_identifier].declaration = enumDeclaration;
-					return size_t(1);
-				}
+			string enumName = std::move(path.front());
+			enumValue = std::move(path.back());
+			declarations = m_resolver.nameFromCurrentScope(enumName);
 		}
-		auto declarations = m_resolver.nameFromCurrentScope(_identifier.name.str());
+		else
+		 declarations = m_resolver.nameFromCurrentScope(_identifier.name.str());
 		bool isSlot = boost::algorithm::ends_with(_identifier.name.str(), "_slot");
 		bool isOffset = boost::algorithm::ends_with(_identifier.name.str(), "_offset");
 		if (isSlot || isOffset)
@@ -332,6 +327,7 @@ bool ReferencesResolver::visit(InlineAssembly const& _inlineAssembly)
 			}
 		_inlineAssembly.annotation().externalReferences[&_identifier].isSlot = isSlot;
 		_inlineAssembly.annotation().externalReferences[&_identifier].isOffset = isOffset;
+		_inlineAssembly.annotation().externalReferences[&_identifier].enumValue = enumValue;
 		_inlineAssembly.annotation().externalReferences[&_identifier].declaration = declarations.front();
 		return size_t(1);
 	};
