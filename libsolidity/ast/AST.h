@@ -338,21 +338,45 @@ private:
 };
 
 /**
+ * The DocString class
+ */
+class DocString: public ASTNode
+{
+public:
+	DocString(
+		SourceLocation const& _location,
+		ASTPointer<ASTString> const& _text
+	): ASTNode(_location), m_text(_text)
+	{}
+
+	void accept(ASTVisitor& _visitor) override;
+	void accept(ASTConstVisitor& _visitor) const override;
+
+	ASTPointer<ASTString> const& text() const { return m_text; }
+
+private:
+
+	///
+	ASTPointer<ASTString> m_text;
+};
+
+/**
  * Abstract class that is added to each AST node that can receive documentation.
  */
 class Documented
 {
 public:
 	virtual ~Documented() = default;
-	explicit Documented(ASTPointer<ASTString> const& _documentation): m_documentation(_documentation) {}
+	explicit Documented(ASTPointer<DocString> const& _documentation): m_documentation(_documentation) {}
 
 	/// @return A shared pointer of an ASTString.
 	/// Can contain a nullptr in which case indicates absence of documentation
-	ASTPointer<ASTString> const& documentation() const { return m_documentation; }
+	ASTPointer<DocString> const& documentation() const { return m_documentation; }
 
 protected:
-	ASTPointer<ASTString> m_documentation;
+	ASTPointer<DocString> m_documentation;
 };
+
 
 /**
  * Abstract class that is added to AST nodes that can be marked as not being fully implemented
@@ -385,7 +409,7 @@ public:
 	ContractDefinition(
 		SourceLocation const& _location,
 		ASTPointer<ASTString> const& _name,
-		ASTPointer<ASTString> const& _documentation,
+		ASTPointer<DocString> const& _documentation,
 		std::vector<ASTPointer<InheritanceSpecifier>> const& _baseContracts,
 		std::vector<ASTPointer<ASTNode>> const& _subNodes,
 		ContractKind _contractKind = ContractKind::Contract,
@@ -668,7 +692,7 @@ public:
 		Token _kind,
 		bool _isVirtual,
 		ASTPointer<OverrideSpecifier> const& _overrides,
-		ASTPointer<ASTString> const& _documentation,
+		ASTPointer<DocString> const& _documentation,
 		ASTPointer<ParameterList> const& _parameters,
 		std::vector<ASTPointer<ModifierInvocation>> const& _modifiers,
 		ASTPointer<ParameterList> const& _returnParameters,
@@ -839,7 +863,7 @@ public:
 	ModifierDefinition(
 		SourceLocation const& _location,
 		ASTPointer<ASTString> const& _name,
-		ASTPointer<ASTString> const& _documentation,
+		ASTPointer<DocString> const& _documentation,
 		ASTPointer<ParameterList> const& _parameters,
 		bool _isVirtual,
 		ASTPointer<OverrideSpecifier> const& _overrides,
@@ -900,7 +924,7 @@ public:
 	EventDefinition(
 		SourceLocation const& _location,
 		ASTPointer<ASTString> const& _name,
-		ASTPointer<ASTString> const& _documentation,
+		ASTPointer<DocString> const& _documentation,
 		ASTPointer<ParameterList> const& _parameters,
 		bool _anonymous = false
 	):
@@ -1114,7 +1138,7 @@ class Statement: public ASTNode, public Documented
 public:
 	explicit Statement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString
+		ASTPointer<DocString> const& _docString
 	): ASTNode(_location), Documented(_docString) {}
 
 	StatementAnnotation& annotation() const override;
@@ -1128,7 +1152,7 @@ class InlineAssembly: public Statement
 public:
 	InlineAssembly(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		yul::Dialect const& _dialect,
 		std::shared_ptr<yul::Block> const& _operations
 	):
@@ -1154,7 +1178,7 @@ class Block: public Statement, public Scopable
 public:
 	Block(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		std::vector<ASTPointer<Statement>> const& _statements
 	):
 		Statement(_location, _docString), m_statements(_statements) {}
@@ -1176,7 +1200,7 @@ class PlaceholderStatement: public Statement
 public:
 	explicit PlaceholderStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString
+		ASTPointer<DocString> const& _docString
 	): Statement(_location, _docString) {}
 
 	void accept(ASTVisitor& _visitor) override;
@@ -1192,7 +1216,7 @@ class IfStatement: public Statement
 public:
 	IfStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> const& _condition,
 		ASTPointer<Statement> const& _trueBody,
 		ASTPointer<Statement> const& _falseBody
@@ -1267,7 +1291,7 @@ class TryStatement: public Statement
 public:
 	TryStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> const& _externalCall,
 		std::vector<ASTPointer<TryCatchClause>> const& _clauses
 	):
@@ -1294,7 +1318,7 @@ class BreakableStatement: public Statement
 public:
 	explicit BreakableStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString
+		ASTPointer<DocString> const& _docString
 	): Statement(_location, _docString) {}
 };
 
@@ -1303,7 +1327,7 @@ class WhileStatement: public BreakableStatement
 public:
 	WhileStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> const& _condition,
 		ASTPointer<Statement> const& _body,
 		bool _isDoWhile
@@ -1331,7 +1355,7 @@ class ForStatement: public BreakableStatement, public Scopable
 public:
 	ForStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Statement> const& _initExpression,
 		ASTPointer<Expression> const& _conditionExpression,
 		ASTPointer<ExpressionStatement> const& _loopExpression,
@@ -1365,7 +1389,7 @@ private:
 class Continue: public Statement
 {
 public:
-	explicit Continue(SourceLocation const& _location, ASTPointer<ASTString> const& _docString):
+	explicit Continue(SourceLocation const& _location, ASTPointer<DocString> const& _docString):
 		Statement(_location, _docString) {}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -1374,7 +1398,7 @@ public:
 class Break: public Statement
 {
 public:
-	explicit Break(SourceLocation const& _location, ASTPointer<ASTString> const& _docString):
+	explicit Break(SourceLocation const& _location, ASTPointer<DocString> const& _docString):
 		Statement(_location, _docString) {}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -1385,7 +1409,7 @@ class Return: public Statement
 public:
 	Return(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> _expression
 	): Statement(_location, _docString), m_expression(_expression) {}
 	void accept(ASTVisitor& _visitor) override;
@@ -1405,7 +1429,7 @@ private:
 class Throw: public Statement
 {
 public:
-	explicit Throw(SourceLocation const& _location, ASTPointer<ASTString> const& _docString):
+	explicit Throw(SourceLocation const& _location, ASTPointer<DocString> const& _docString):
 		Statement(_location, _docString) {}
 	void accept(ASTVisitor& _visitor) override;
 	void accept(ASTConstVisitor& _visitor) const override;
@@ -1419,7 +1443,7 @@ class EmitStatement: public Statement
 public:
 	explicit EmitStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<FunctionCall> const& _functionCall
 	):
 		Statement(_location, _docString), m_eventCall(_functionCall) {}
@@ -1445,7 +1469,7 @@ class VariableDeclarationStatement: public Statement
 public:
 	VariableDeclarationStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		std::vector<ASTPointer<VariableDeclaration>> const& _variables,
 		ASTPointer<Expression> const& _initialValue
 	):
@@ -1474,7 +1498,7 @@ class ExpressionStatement: public Statement
 public:
 	ExpressionStatement(
 		SourceLocation const& _location,
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> _expression
 	):
 		Statement(_location, _docString), m_expression(_expression) {}

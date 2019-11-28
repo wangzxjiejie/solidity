@@ -90,6 +90,7 @@ class PrimaryExpression;
 class Identifier;
 class ElementaryTypeNameExpression;
 class Literal;
+class DocString;
 
 class VariableScope;
 

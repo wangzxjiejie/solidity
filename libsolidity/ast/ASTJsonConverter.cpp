@@ -268,7 +268,7 @@ bool ASTJsonConverter::visit(ContractDefinition const& _node)
 {
 	setJsonNode(_node, "ContractDefinition", {
 		make_pair("name", _node.name()),
-		make_pair("documentation", _node.documentation() ? Json::Value(*_node.documentation()) : Json::nullValue),
+		make_pair("documentation", _node.documentation()->text() ? Json::Value(*_node.documentation()->text()) : Json::nullValue),
 		make_pair("contractKind", contractKind(_node.contractKind())),
 		make_pair("abstract", _node.abstract()),
 		make_pair("fullyImplemented", _node.annotation().unimplementedFunctions.empty()),
@@ -341,7 +341,7 @@ bool ASTJsonConverter::visit(FunctionDefinition const& _node)
 {
 	std::vector<pair<string, Json::Value>> attributes = {
 		make_pair("name", _node.name()),
-		make_pair("documentation", _node.documentation() ? Json::Value(*_node.documentation()) : Json::nullValue),
+		make_pair("documentation", _node.documentation()->text() ? Json::Value(*_node.documentation()->text()) : Json::nullValue),
 		make_pair("kind", TokenTraits::toString(_node.kind())),
 		make_pair("stateMutability", stateMutabilityToString(_node.stateMutability())),
 		make_pair("superFunction", idOrNull(_node.annotation().superFunction)),
@@ -384,7 +384,7 @@ bool ASTJsonConverter::visit(ModifierDefinition const& _node)
 {
 	setJsonNode(_node, "ModifierDefinition", {
 		make_pair("name", _node.name()),
-		make_pair("documentation", _node.documentation() ? Json::Value(*_node.documentation()) : Json::nullValue),
+		make_pair("documentation", _node.documentation()->text() ? Json::Value(*_node.documentation()->text()) : Json::nullValue),
 		make_pair("visibility", Declaration::visibilityToString(_node.visibility())),
 		make_pair("parameters", toJson(_node.parameterList())),
 		make_pair("body", toJson(_node.body()))
@@ -406,7 +406,7 @@ bool ASTJsonConverter::visit(EventDefinition const& _node)
 	m_inEvent = true;
 	setJsonNode(_node, "EventDefinition", {
 		make_pair("name", _node.name()),
-		make_pair("documentation", _node.documentation() ? Json::Value(*_node.documentation()) : Json::nullValue),
+		make_pair("documentation", _node.documentation()->text() ? Json::Value(*_node.documentation()->text()) : Json::nullValue),
 		make_pair("parameters", toJson(_node.parameterList())),
 		make_pair("anonymous", _node.isAnonymous())
 	});

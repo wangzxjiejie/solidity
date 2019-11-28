@@ -93,6 +93,7 @@ public:
 	virtual bool visit(Identifier& _node) { return visitNode(_node); }
 	virtual bool visit(ElementaryTypeNameExpression& _node) { return visitNode(_node); }
 	virtual bool visit(Literal& _node) { return visitNode(_node); }
+	virtual bool visit(DocString& _node) { return visitNode(_node); }
 
 	virtual void endVisit(SourceUnit& _node) { endVisitNode(_node); }
 	virtual void endVisit(PragmaDirective& _node) { endVisitNode(_node); }
@@ -143,6 +144,7 @@ public:
 	virtual void endVisit(Identifier& _node) { endVisitNode(_node); }
 	virtual void endVisit(ElementaryTypeNameExpression& _node) { endVisitNode(_node); }
 	virtual void endVisit(Literal& _node) { endVisitNode(_node); }
+	virtual void endVisit(DocString& _node) { endVisitNode(_node); }
 
 protected:
 	/// Generic function called by default for each node, to be overridden by derived classes
@@ -206,6 +208,7 @@ public:
 	virtual bool visit(Identifier const& _node) { return visitNode(_node); }
 	virtual bool visit(ElementaryTypeNameExpression const& _node) { return visitNode(_node); }
 	virtual bool visit(Literal const& _node) { return visitNode(_node); }
+	virtual bool visit(DocString const& _node) { return visitNode(_node); }
 
 	virtual void endVisit(SourceUnit const& _node) { endVisitNode(_node); }
 	virtual void endVisit(PragmaDirective const& _node) { endVisitNode(_node); }
@@ -256,6 +259,7 @@ public:
 	virtual void endVisit(Identifier const& _node) { endVisitNode(_node); }
 	virtual void endVisit(ElementaryTypeNameExpression const& _node) { endVisitNode(_node); }
 	virtual void endVisit(Literal const& _node) { endVisitNode(_node); }
+	virtual void endVisit(DocString const& _node) { endVisitNode(_node); }
 
 protected:
 	/// Generic function called by default for each node, to be overridden by derived classes

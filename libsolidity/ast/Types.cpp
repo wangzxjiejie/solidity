@@ -3288,7 +3288,7 @@ ASTPointer<ASTString> FunctionType::documentation() const
 {
 	auto function = dynamic_cast<Documented const*>(m_declaration);
 	if (function)
-		return function->documentation();
+		return function->documentation()->text();
 
 	return ASTPointer<ASTString>();
 }

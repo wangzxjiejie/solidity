@@ -277,14 +277,17 @@ ASTPointer<ContractDefinition> Parser::parseContractDefinition()
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
 	ASTPointer<ASTString> name =  nullptr;
-	ASTPointer<ASTString> docString;
+	ASTPointer<DocString> docString;
 	vector<ASTPointer<InheritanceSpecifier>> baseContracts;
 	vector<ASTPointer<ASTNode>> subNodes;
 	std::pair<ContractDefinition::ContractKind, bool> contractKind{};
 	try
 	{
 		if (m_scanner->currentCommentLiteral() != "")
-			docString = make_shared<ASTString>(m_scanner->currentCommentLiteral());
+			docString = make_shared<DocString>(
+				m_scanner->currentCommentLocation(),
+				make_shared<ASTString>(m_scanner->currentCommentLiteral())
+			);
 		contractKind = parseContractKind();
 		name = expectIdentifierToken();
 		if (m_scanner->currentToken() == Token::Is)
@@ -539,9 +542,12 @@ ASTPointer<ASTNode> Parser::parseFunctionDefinition()
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
-	ASTPointer<ASTString> docstring;
+	ASTPointer<DocString> docstring;
 	if (m_scanner->currentCommentLiteral() != "")
-		docstring = make_shared<ASTString>(m_scanner->currentCommentLiteral());
+		docstring = make_shared<DocString>(
+			m_scanner->currentCommentLocation(),
+			make_shared<ASTString>(m_scanner->currentCommentLiteral())
+		);
 
 	Token kind = m_scanner->currentToken();
 	ASTPointer<ASTString> name;
@@ -793,9 +799,12 @@ ASTPointer<ModifierDefinition> Parser::parseModifierDefinition()
 	m_insideModifier = true;
 
 	ASTNodeFactory nodeFactory(*this);
-	ASTPointer<ASTString> docstring;
+	ASTPointer<DocString> docstring;
 	if (m_scanner->currentCommentLiteral() != "")
-		docstring = make_shared<ASTString>(m_scanner->currentCommentLiteral());
+		docstring = make_shared<DocString>(
+			m_scanner->currentCommentLocation(),
+			make_shared<ASTString>(m_scanner->currentCommentLiteral())
+		);
 
 	expectToken(Token::Modifier);
 	ASTPointer<ASTString> name(expectIdentifierToken());
@@ -843,9 +852,12 @@ ASTPointer<EventDefinition> Parser::parseEventDefinition()
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
-	ASTPointer<ASTString> docstring;
+	ASTPointer<DocString> docstring;
 	if (m_scanner->currentCommentLiteral() != "")
-		docstring = make_shared<ASTString>(m_scanner->currentCommentLiteral());
+		docstring = make_shared<DocString>(
+			m_scanner->currentCommentLocation(),
+			make_shared<ASTString>(m_scanner->currentCommentLiteral())
+		);
 
 	expectToken(Token::Event);
 	ASTPointer<ASTString> name(expectIdentifierToken());
@@ -1059,7 +1071,7 @@ ASTPointer<ParameterList> Parser::parseParameterList(
 	return nodeFactory.createNode<ParameterList>(parameters);
 }
 
-ASTPointer<Block> Parser::parseBlock(ASTPointer<ASTString> const& _docString)
+ASTPointer<Block> Parser::parseBlock(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1091,12 +1103,15 @@ ASTPointer<Block> Parser::parseBlock(ASTPointer<ASTString> const& _docString)
 ASTPointer<Statement> Parser::parseStatement()
 {
 	RecursionGuard recursionGuard(*this);
-	ASTPointer<ASTString> docString;
+	ASTPointer<DocString> docString;
 	ASTPointer<Statement> statement;
 	try
 	{
 		if (m_scanner->currentCommentLiteral() != "")
-			docString = make_shared<ASTString>(m_scanner->currentCommentLiteral());
+			docString = make_shared<DocString>(
+				m_scanner->currentCommentLocation(),
+				make_shared<ASTString>(m_scanner->currentCommentLiteral())
+			);
 		switch (m_scanner->currentToken())
 		{
 		case Token::If:
@@ -1174,7 +1189,7 @@ ASTPointer<Statement> Parser::parseStatement()
 	return statement;
 }
 
-ASTPointer<InlineAssembly> Parser::parseInlineAssembly(ASTPointer<ASTString> const& _docString)
+ASTPointer<InlineAssembly> Parser::parseInlineAssembly(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	SourceLocation location{position(), -1, source()};
@@ -1198,7 +1213,7 @@ ASTPointer<InlineAssembly> Parser::parseInlineAssembly(ASTPointer<ASTString> con
 	return make_shared<InlineAssembly>(location, _docString, dialect, block);
 }
 
-ASTPointer<IfStatement> Parser::parseIfStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<IfStatement> Parser::parseIfStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1219,7 +1234,7 @@ ASTPointer<IfStatement> Parser::parseIfStatement(ASTPointer<ASTString> const& _d
 	return nodeFactory.createNode<IfStatement>(_docString, condition, trueBody, falseBody);
 }
 
-ASTPointer<TryStatement> Parser::parseTryStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<TryStatement> Parser::parseTryStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1275,7 +1290,7 @@ ASTPointer<TryCatchClause> Parser::parseCatchClause()
 	return nodeFactory.createNode<TryCatchClause>(errorName, errorParameters, block);
 }
 
-ASTPointer<WhileStatement> Parser::parseWhileStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<WhileStatement> Parser::parseWhileStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1288,7 +1303,7 @@ ASTPointer<WhileStatement> Parser::parseWhileStatement(ASTPointer<ASTString> con
 	return nodeFactory.createNode<WhileStatement>(_docString, condition, body, false);
 }
 
-ASTPointer<WhileStatement> Parser::parseDoWhileStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<WhileStatement> Parser::parseDoWhileStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1304,7 +1319,7 @@ ASTPointer<WhileStatement> Parser::parseDoWhileStatement(ASTPointer<ASTString> c
 }
 
 
-ASTPointer<ForStatement> Parser::parseForStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<ForStatement> Parser::parseForStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	ASTNodeFactory nodeFactory(*this);
@@ -1316,7 +1331,7 @@ ASTPointer<ForStatement> Parser::parseForStatement(ASTPointer<ASTString> const& 
 
 	// LTODO: Maybe here have some predicate like peekExpression() instead of checking for semicolon and RParen?
 	if (m_scanner->currentToken() != Token::Semicolon)
-		initExpression = parseSimpleStatement(ASTPointer<ASTString>());
+		initExpression = parseSimpleStatement(ASTPointer<DocString>());
 	expectToken(Token::Semicolon);
 
 	if (m_scanner->currentToken() != Token::Semicolon)
@@ -1324,7 +1339,7 @@ ASTPointer<ForStatement> Parser::parseForStatement(ASTPointer<ASTString> const& 
 	expectToken(Token::Semicolon);
 
 	if (m_scanner->currentToken() != Token::RParen)
-		loopExpression = parseExpressionStatement(ASTPointer<ASTString>());
+		loopExpression = parseExpressionStatement(ASTPointer<DocString>());
 	expectToken(Token::RParen);
 
 	ASTPointer<Statement> body = parseStatement();
@@ -1338,7 +1353,7 @@ ASTPointer<ForStatement> Parser::parseForStatement(ASTPointer<ASTString> const& 
 	);
 }
 
-ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<DocString> const& _docString)
 {
 	expectToken(Token::Emit, false);
 
@@ -1356,7 +1371,7 @@ ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<ASTString> const
 		if (m_scanner->currentToken() != Token::Period)
 			break;
 		m_scanner->next();
-	};
+	}
 
 	auto eventName = expressionFromIndexAccessStructure(iap);
 	expectToken(Token::LParen);
@@ -1372,7 +1387,7 @@ ASTPointer<EmitStatement> Parser::parseEmitStatement(ASTPointer<ASTString> const
 	return statement;
 }
 
-ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<ASTString> const& _docString)
+ASTPointer<Statement> Parser::parseSimpleStatement(ASTPointer<DocString> const& _docString)
 {
 	RecursionGuard recursionGuard(*this);
 	LookAheadInfo statementType;
@@ -1496,7 +1511,7 @@ pair<Parser::LookAheadInfo, Parser::IndexAccessedPath> Parser::tryParseIndexAcce
 }
 
 ASTPointer<VariableDeclarationStatement> Parser::parseVariableDeclarationStatement(
-	ASTPointer<ASTString> const& _docString,
+	ASTPointer<DocString> const& _docString,
 	ASTPointer<TypeName> const& _lookAheadArrayType
 )
 {
@@ -1564,7 +1579,7 @@ ASTPointer<VariableDeclarationStatement> Parser::parseVariableDeclarationStateme
 }
 
 ASTPointer<ExpressionStatement> Parser::parseExpressionStatement(
-	ASTPointer<ASTString> const& _docString,
+	ASTPointer<DocString> const& _docString,
 	ASTPointer<Expression> const& _partialParserResult
 )
 {

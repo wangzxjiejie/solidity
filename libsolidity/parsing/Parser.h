@@ -115,24 +115,24 @@ private:
 		VarDeclParserOptions const& _options = {},
 		bool _allowEmpty = true
 	);
-	ASTPointer<Block> parseBlock(ASTPointer<ASTString> const& _docString = {});
+	ASTPointer<Block> parseBlock(ASTPointer<DocString> const& _docString = {});
 	ASTPointer<Statement> parseStatement();
-	ASTPointer<InlineAssembly> parseInlineAssembly(ASTPointer<ASTString> const& _docString = {});
-	ASTPointer<IfStatement> parseIfStatement(ASTPointer<ASTString> const& _docString);
-	ASTPointer<TryStatement> parseTryStatement(ASTPointer<ASTString> const& _docString);
+	ASTPointer<InlineAssembly> parseInlineAssembly(ASTPointer<DocString> const& _docString = {});
+	ASTPointer<IfStatement> parseIfStatement(ASTPointer<DocString> const& _docString);
+	ASTPointer<TryStatement> parseTryStatement(ASTPointer<DocString> const& _docString);
 	ASTPointer<TryCatchClause> parseCatchClause();
-	ASTPointer<WhileStatement> parseWhileStatement(ASTPointer<ASTString> const& _docString);
-	ASTPointer<WhileStatement> parseDoWhileStatement(ASTPointer<ASTString> const& _docString);
-	ASTPointer<ForStatement> parseForStatement(ASTPointer<ASTString> const& _docString);
-	ASTPointer<EmitStatement> parseEmitStatement(ASTPointer<ASTString> const& docString);
+	ASTPointer<WhileStatement> parseWhileStatement(ASTPointer<DocString> const& _docString);
+	ASTPointer<WhileStatement> parseDoWhileStatement(ASTPointer<DocString> const& _docString);
+	ASTPointer<ForStatement> parseForStatement(ASTPointer<DocString> const& _docString);
+	ASTPointer<EmitStatement> parseEmitStatement(ASTPointer<DocString> const& docString);
 	/// A "simple statement" can be a variable declaration statement or an expression statement.
-	ASTPointer<Statement> parseSimpleStatement(ASTPointer<ASTString> const& _docString);
+	ASTPointer<Statement> parseSimpleStatement(ASTPointer<DocString> const& _docString);
 	ASTPointer<VariableDeclarationStatement> parseVariableDeclarationStatement(
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<TypeName> const& _lookAheadArrayType = ASTPointer<TypeName>()
 	);
 	ASTPointer<ExpressionStatement> parseExpressionStatement(
-		ASTPointer<ASTString> const& _docString,
+		ASTPointer<DocString> const& _docString,
 		ASTPointer<Expression> const& _partiallyParsedExpression = ASTPointer<Expression>()
 	);
 	ASTPointer<Expression> parseExpression(
