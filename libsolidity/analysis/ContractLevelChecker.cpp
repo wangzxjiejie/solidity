@@ -654,16 +654,37 @@ void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _co
 			continue;
 
 		set<FunctionDefinition const*> ambiguousFunctions;
+		set<FunctionDefinition const*> implementedBaseFunctions;
 		SecondarySourceLocation ssl;
 
 		for (;begin != end; begin++)
 		{
 			ambiguousFunctions.insert(*begin);
+			if ((*begin)->isImplemented())
+				implementedBaseFunctions.insert(*begin);
 			ssl.append("Definition here: ", (*begin)->location());
 		}
 
 		// Make sure the functions are not from the same base contract
 		if (ambiguousFunctions.size() == 1)
+			continue;
+
+		// Trace all functions back to the non-overriding functions they ultimately override.
+		set<FunctionDefinition const*> nonOverridingBaseFunctions;
+		while(!ambiguousFunctions.empty())
+		{
+			FunctionDefinition const* current = *ambiguousFunctions.begin();
+			ambiguousFunctions.erase(ambiguousFunctions.begin());
+			if (!current->annotation().baseFunctions.empty())
+				for (auto const &baseFunction: current->annotation().baseFunctions)
+					ambiguousFunctions.insert(baseFunction);
+			else
+				nonOverridingBaseFunctions.insert(current);
+		}
+
+		// If the function is defined in a unique shared base class and only implemented in one path to that base class,
+		// we don't require overriding.
+		if (implementedBaseFunctions.size() == 1 && nonOverridingBaseFunctions.size() == 1)
 			continue;
 
 		m_errorReporter.typeError(
