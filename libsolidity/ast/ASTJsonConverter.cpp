@@ -350,7 +350,8 @@ bool ASTJsonConverter::visit(FunctionDefinition const& _node)
 		make_pair("parameters", toJson(_node.parameterList())),
 		make_pair("returnParameters", toJson(*_node.returnParameterList())),
 		make_pair("modifiers", toJson(_node.modifiers())),
-		make_pair("body", _node.isImplemented() ? toJson(_node.body()) : Json::nullValue),
+		make_pair("forwardingExpression", _node.isImplemented() ? toJson(_node.body()) : Json::nullValue),
+		make_pair("alias", _node.isForwarding() ? toJson(_node.forwardingExpression()) : Json::nullValue),
 		make_pair("implemented", _node.isImplemented()),
 		make_pair("scope", idOrNull(_node.scope()))
 	};

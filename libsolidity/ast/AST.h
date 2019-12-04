@@ -672,7 +672,8 @@ public:
 		ASTPointer<ParameterList> const& _parameters,
 		std::vector<ASTPointer<ModifierInvocation>> const& _modifiers,
 		ASTPointer<ParameterList> const& _returnParameters,
-		ASTPointer<Block> const& _body
+		ASTPointer<Block> const& _body,
+		ASTPointer<Expression> const& _forwardingExpression
 	):
 		CallableDeclaration(_location, _name, _visibility, _parameters, _isVirtual, _overrides, _returnParameters),
 		Documented(_documentation),
@@ -680,8 +681,10 @@ public:
 		m_stateMutability(_stateMutability),
 		m_kind(_kind),
 		m_functionModifiers(_modifiers),
-		m_body(_body)
+		m_body(_body),
+		m_forwardingExpression(_forwardingExpression)
 	{
+		solAssert(!(_body && _forwardingExpression), "");
 		solAssert(_kind == Token::Constructor || _kind == Token::Function || _kind == Token::Fallback || _kind == Token::Receive, "");
 	}
 
@@ -695,8 +698,10 @@ public:
 	bool isReceive() const { return m_kind == Token::Receive; }
 	Token kind() const { return m_kind; }
 	bool isPayable() const { return m_stateMutability == StateMutability::Payable; }
+	bool isForwarding() const { return !!m_forwardingExpression; }
 	std::vector<ASTPointer<ModifierInvocation>> const& modifiers() const { return m_functionModifiers; }
 	Block const& body() const { solAssert(m_body, ""); return *m_body; }
+	Expression const& forwardingExpression() const { solAssert(m_forwardingExpression, ""); return *m_forwardingExpression; }
 	bool isVisibleInContract() const override
 	{
 		return Declaration::isVisibleInContract() && isOrdinary();
@@ -729,6 +734,7 @@ private:
 	Token const m_kind;
 	std::vector<ASTPointer<ModifierInvocation>> m_functionModifiers;
 	ASTPointer<Block> m_body;
+	ASTPointer<Expression> m_forwardingExpression;
 };
 
 /**

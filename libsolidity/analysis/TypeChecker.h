@@ -112,6 +112,8 @@ private:
 		FunctionTypePointer _functionType
 	);
 
+	void typeCheckFunctionForwarding(FunctionDefinition const& _function);
+
 	void endVisit(InheritanceSpecifier const& _inheritance) override;
 	void endVisit(UsingForDirective const& _usingFor) override;
 	bool visit(StructDefinition const& _struct) override;

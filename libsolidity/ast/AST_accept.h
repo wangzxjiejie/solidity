@@ -213,6 +213,8 @@ void FunctionDefinition::accept(ASTVisitor& _visitor)
 		listAccept(m_functionModifiers, _visitor);
 		if (m_body)
 			m_body->accept(_visitor);
+		if (m_forwardingExpression)
+			m_forwardingExpression->accept(_visitor);
 	}
 	_visitor.endVisit(*this);
 }
@@ -229,6 +231,8 @@ void FunctionDefinition::accept(ASTConstVisitor& _visitor) const
 		listAccept(m_functionModifiers, _visitor);
 		if (m_body)
 			m_body->accept(_visitor);
+		if (m_forwardingExpression)
+			m_forwardingExpression->accept(_visitor);
 	}
 	_visitor.endVisit(*this);
 }

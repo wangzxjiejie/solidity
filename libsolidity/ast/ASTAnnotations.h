@@ -109,6 +109,8 @@ struct FunctionDefinitionAnnotation: ASTAnnotation, DocumentedAnnotation
 	/// The function this function overrides, if any. This is always the closest
 	/// in the linearized inheritance hierarchy.
 	FunctionDefinition const* superFunction = nullptr;
+	/// The function this function forwards to, if any.
+	FunctionDefinition const* forwardedFunction = nullptr;
 	/// Pointer to the contract this function is defined in
 	ContractDefinition const* contract = nullptr;
 };

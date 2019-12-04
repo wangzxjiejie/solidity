@@ -584,14 +584,22 @@ ASTPointer<ASTNode> Parser::parseFunctionDefinition()
 	FunctionHeaderParserResult header = parseFunctionHeader(false);
 
 	ASTPointer<Block> block;
+	ASTPointer<Expression> forwarding;
 	nodeFactory.markEndPosition();
-	if (m_scanner->currentToken() != Token::Semicolon)
+	switch (m_scanner->currentToken())
 	{
-		block = parseBlock();
-		nodeFactory.setEndPositionFromNode(block);
+		case Token::Semicolon:
+			m_scanner->next(); // just consume the ';'
+			break;
+		case Token::Equal:
+			m_scanner->next();
+			forwarding = parseLeftHandSideExpression();
+			break;
+		default:
+			block = parseBlock();
+			nodeFactory.setEndPositionFromNode(block);
+			break;
 	}
-	else
-		m_scanner->next(); // just consume the ';'
 	return nodeFactory.createNode<FunctionDefinition>(
 		name,
 		header.visibility,
@@ -603,7 +611,8 @@ ASTPointer<ASTNode> Parser::parseFunctionDefinition()
 		header.parameters,
 		header.modifiers,
 		header.returnParameters,
-		block
+		block,
+		forwarding
 	);
 }
 

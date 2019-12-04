@@ -323,9 +323,51 @@ bool TypeChecker::visit(StructDefinition const& _struct)
 	return false;
 }
 
+void TypeChecker::typeCheckFunctionForwarding(FunctionDefinition const& _function)
+{
+	solAssert(_function.isForwarding(), "");
+
+	if (
+		_function.annotation().contract->contractKind() != ContractDefinition::ContractKind::Contract ||
+		_function.visibility() != Declaration::Visibility::External
+	)
+		m_errorReporter.typeError(_function.location(), "Only external functions in regular contracts can use forwarding expressions.");
+
+	auto const* functionType = dynamic_cast<FunctionType const*>(_function.type());
+	solAssert(functionType, "");
+
+	_function.forwardingExpression().accept(*this);
+	if (auto const* forwardedFunctionType = dynamic_cast<FunctionType const*>(_function.forwardingExpression().annotation().type))
+			if (forwardedFunctionType->hasDeclaration())
+				if (auto const* forwardedFunction = dynamic_cast<FunctionDefinition const*>(&forwardedFunctionType->declaration()))
+				{
+					if (
+						functionType->hasEqualParameterTypes(*forwardedFunctionType) &&
+						functionType->hasEqualReturnTypes(*forwardedFunctionType)
+					)
+					{
+
+					}
+					else
+						m_errorReporter.typeError(
+							_function.forwardingExpression().location(),
+							"Forwarded function must have the same signature."
+						);
+					return;
+				}
+	m_errorReporter.typeError(
+		_function.forwardingExpression().location(),
+		"Forwarding expression must reference a function."
+	);
+
+}
+
 bool TypeChecker::visit(FunctionDefinition const& _function)
 {
 	bool isLibraryFunction = _function.inContractKind() == ContractDefinition::ContractKind::Library;
+
+	if (_function.isForwarding())
+		typeCheckFunctionForwarding(_function);
 
 	if (_function.markedVirtual())
 	{
