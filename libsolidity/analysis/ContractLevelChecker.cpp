@@ -625,7 +625,7 @@ void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _co
 
 	auto const resolvedBases = resolveDirectBaseContracts(_contract);
 
-	FunctionMultiSet inheritedFuncs = inheritedFunctions(&_contract);
+	FunctionMultiSet inheritedFuncs = inheritedFunctions(&_contract, true);
 
 	// Check the sets of the most-inherited functions
 	for (auto it = inheritedFuncs.cbegin(); it != inheritedFuncs.cend(); it = inheritedFuncs.upper_bound(*it))
@@ -665,96 +665,7 @@ void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _co
 			ssl.append("Definition here: ", (*begin)->location());
 		}
 
-
-		// TODO: extract to a generic algorithm
-		struct BaseGraph {
-			std::map<FunctionDefinition const*, int> nodes;
-			std::map<int, std::set<int>> edges;
-			int numNodes = 2;
-
-			void addEdge(int a, int b)
-			{
-				edges[a].insert(b);
-				edges[b].insert(a);
-			}
-
-			int visit(FunctionDefinition const* def)
-			{
-				int currentNode = -1;
-				auto it = nodes.find(def);
-				if (it == nodes.end())
-				{
-					currentNode = numNodes++;
-					nodes[def] = currentNode;
-				}
-				else
-					return it->second;
-
-				if (!def->overrides())
-					addEdge(currentNode, 1);
-				else
-					for (auto const* base: def->annotation().baseFunctions)
-					{
-						auto it = nodes.find(base);
-						if (it == nodes.end())
-						{
-							auto dst = visit(base);
-							addEdge(currentNode, dst);
-						}
-						else
-						{
-							addEdge(currentNode, it->second);
-						}
-					}
-
-				return currentNode;
-			}
-		};
-
-		BaseGraph g;
-		for (auto const* f: ambiguousFunctions)
-		{
-			auto dst = g.visit(f);
-			g.addEdge(0, dst);
-		}
-
-		struct CutVertexFinder
-		{
-			std::set<int> visited{};
-			int time = 0;
-			std::map<int, int> disc{};
-			std::map<int, int> low{};
-
-			bool run(BaseGraph const& g, int u, int parent = -1)
-			{
-				visited.insert(u);
-				disc[u] = low[u] = time + 1;
-				int child = 0;
-				for (int v: g.edges.at(u)) {
-					if (v == parent) continue;
-					if (!visited.count(v))
-					{
-						++child;
-						++time;
-						if (run(g, v, u))
-							return true;
-						low[u] = min(low[u], low[v]);
-
-						if (parent == -1 && child > 1)
-							return true;
-						if (parent != -1 && low[v] >= disc[u])
-							return true;
-					}
-					else
-						low[u] = min(low[u], disc[v]);
-				}
-				return false;
-			}
-		};
-
-		CutVertexFinder cutVertexFinder;
-
-		if (cutVertexFinder.run(g, 0))
+		if (ambiguousFunctions.size() == 1)
 			continue;
 
 		m_errorReporter.typeError(
@@ -891,27 +802,49 @@ void ContractLevelChecker::checkOverrideList(FunctionMultiSet const& _funcSet, F
 		);
 }
 
-ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract) const
+ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract, bool removeOverriddenBases) const
 {
-	if (!m_inheritedFunctions.count(_contract))
+	auto& inheritedFunctionSet = removeOverriddenBases ? m_inheritedFunctionsWithoutOverridden : m_inheritedFunctions;
+	if (!inheritedFunctionSet.count(_contract))
 	{
 		FunctionMultiSet set;
+		auto const& directBases = resolveDirectBaseContracts(*_contract);
 
-		for (auto const* base: resolveDirectBaseContracts(*_contract))
+		for (auto const* base: directBases)
 		{
 			std::set<FunctionDefinition const*, LessFunction> tmpSet =
 				convertContainer<decltype(tmpSet)>(base->definedFunctions());
 
-			for (auto const& func: inheritedFunctions(base))
+			for (auto const& func: inheritedFunctions(base, removeOverriddenBases))
 				tmpSet.insert(func);
 
 			set += tmpSet;
 		}
 
-		m_inheritedFunctions[_contract] = set;
+		if (removeOverriddenBases)
+		{
+			for (auto const* base: directBases)
+			{
+				 for (auto const* f: base->definedFunctions()) {
+				 	auto [begin, end] = set.equal_range(f);
+				 	std::set<ContractDefinition const*> overriddenBases;
+				 	for (auto const& x: f->annotation().baseFunctions)
+				 		overriddenBases.insert(x->annotation().contract);
+					 for (auto it = begin; it != end;)
+					 {
+						 if (overriddenBases.count((*it)->annotation().contract))
+							 it = set.erase(it);
+						 else
+							 ++it;
+					 }
+				 }
+			}
+		}
+
+		inheritedFunctionSet[_contract] = set;
 	}
 
-	return m_inheritedFunctions[_contract];
+	return inheritedFunctionSet[_contract];
 }
 
 ContractLevelChecker::ModifierMultiSet const& ContractLevelChecker::inheritedModifiers(ContractDefinition const* _contract) const

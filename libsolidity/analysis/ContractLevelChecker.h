@@ -105,7 +105,7 @@ private:
 
 	/// Returns all functions of bases that have not yet been overwritten.
 	/// May contain the same function multiple times when used with shared bases.
-	FunctionMultiSet const& inheritedFunctions(ContractDefinition const* _contract) const;
+	FunctionMultiSet const& inheritedFunctions(ContractDefinition const* _contract, bool removeOverriddenBases = false) const;
 	ModifierMultiSet const& inheritedModifiers(ContractDefinition const* _contract) const;
 
 	/// Warns if the contract has a payable fallback, but no receive ether function.
@@ -115,6 +115,7 @@ private:
 
 	/// Cache for inheritedFunctions().
 	std::map<ContractDefinition const*, FunctionMultiSet> mutable m_inheritedFunctions;
+	std::map<ContractDefinition const*, FunctionMultiSet> mutable m_inheritedFunctionsWithoutOverridden;
 	std::map<ContractDefinition const*, ModifierMultiSet> mutable m_contractBaseModifiers;
 };
 

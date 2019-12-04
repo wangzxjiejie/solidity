@@ -14,4 +14,3 @@ abstract contract B is I {
 contract C is A, B {
 }
 // ----
-// TypeError: (254-276): Derived contract must override function "f". Function with the same name and parameter types defined in two or more base classes.
