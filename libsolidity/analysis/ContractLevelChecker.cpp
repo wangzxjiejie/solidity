@@ -654,14 +654,11 @@ void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _co
 			continue;
 
 		set<FunctionDefinition const*> ambiguousFunctions;
-		set<FunctionDefinition const*> implementedBaseFunctions;
 		SecondarySourceLocation ssl;
 
 		for (;begin != end; begin++)
 		{
 			ambiguousFunctions.insert(*begin);
-			if ((*begin)->isImplemented())
-				implementedBaseFunctions.insert(*begin);
 			ssl.append("Definition here: ", (*begin)->location());
 		}
 
@@ -802,9 +799,9 @@ void ContractLevelChecker::checkOverrideList(FunctionMultiSet const& _funcSet, F
 		);
 }
 
-ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract, bool removeOverriddenBases) const
+ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract, bool removeOverriddenBaseFunctions) const
 {
-	auto& inheritedFunctionSet = removeOverriddenBases ? m_inheritedFunctionsWithoutOverridden : m_inheritedFunctions;
+	auto& inheritedFunctionSet = removeOverriddenBaseFunctions ? m_inheritedFunctionsWithoutOverriddenBaseFunctions : m_inheritedFunctions;
 	if (!inheritedFunctionSet.count(_contract))
 	{
 		FunctionMultiSet set;
@@ -815,31 +812,22 @@ ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFun
 			std::set<FunctionDefinition const*, LessFunction> tmpSet =
 				convertContainer<decltype(tmpSet)>(base->definedFunctions());
 
-			for (auto const& func: inheritedFunctions(base, removeOverriddenBases))
+			for (auto const& func: inheritedFunctions(base, removeOverriddenBaseFunctions))
 				tmpSet.insert(func);
 
 			set += tmpSet;
 		}
 
-		if (removeOverriddenBases)
-		{
+		if (removeOverriddenBaseFunctions)
 			for (auto const* base: directBases)
-			{
-				 for (auto const* f: base->definedFunctions()) {
-				 	auto [begin, end] = set.equal_range(f);
-				 	std::set<ContractDefinition const*> overriddenBases;
-				 	for (auto const& x: f->annotation().baseFunctions)
-				 		overriddenBases.insert(x->annotation().contract);
-					 for (auto it = begin; it != end;)
+				 for (auto const* functionInBase: base->definedFunctions())
+					 for (auto [it, end] = set.equal_range(functionInBase); it != end;)
 					 {
-						 if (overriddenBases.count((*it)->annotation().contract))
+						 if (functionInBase->annotation().baseFunctions.count(*it))
 							 it = set.erase(it);
 						 else
 							 ++it;
 					 }
-				 }
-			}
-		}
 
 		inheritedFunctionSet[_contract] = set;
 	}

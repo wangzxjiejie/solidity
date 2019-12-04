@@ -203,9 +203,7 @@ vector<pair<FixedHash<4>, FunctionTypePointer>> const& ContractDefinition::inter
 			vector<FunctionTypePointer> functions;
 			for (FunctionDefinition const* f: contract->definedFunctions())
 				if (f->isPartOfExternalInterface())
-					// For unimplemented functions that override, we wait for the occurrence in the base.
-					if (f->isImplemented() || !f->overrides())
-						functions.push_back(TypeProvider::function(*f, false));
+					functions.push_back(TypeProvider::function(*f, false));
 			for (VariableDeclaration const* v: contract->stateVariables())
 				if (v->isPartOfExternalInterface())
 					functions.push_back(TypeProvider::function(*v));
