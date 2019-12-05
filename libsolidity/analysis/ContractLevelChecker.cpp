@@ -621,55 +621,38 @@ void ContractLevelChecker::checkBaseABICompatibility(ContractDefinition const& _
 
 void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _contract) const
 {
-	auto const& contractFuncs = _contract.definedFunctions();
+	// Fetch non overridden base functions and sort them by signature.
+	FunctionMultiSet nonOverriddenBaseFunctionSet = convertContainer<decltype(nonOverriddenBaseFunctionSet)>(
+		nonOverriddenBaseFunctions(&_contract)
+	);
+	// Remove all functions that match the signature of a function in the current contract.
+	nonOverriddenBaseFunctionSet -= _contract.definedFunctions();
 
-	FunctionMultiSet functionsToOverride = baseFunctionsToOverride(&_contract);
-
-	// Check the sets of the most-inherited functions
-	for (auto it = functionsToOverride.cbegin(); it != functionsToOverride.cend(); it = functionsToOverride.upper_bound(*it))
+	// Walk through the set of functions signature by signature.
+	for (auto it = nonOverriddenBaseFunctionSet.cbegin(); it != nonOverriddenBaseFunctionSet.cend();)
 	{
-		auto [begin, end] = functionsToOverride.equal_range(*it);
+		auto nextSignature = nonOverriddenBaseFunctionSet.upper_bound(*it);
 
-		// Only one function
-		if (next(begin) == end)
-			continue;
-
-		// Not an overridable function
-		if ((*it)->isConstructor())
+		// Only one function with this signature - skip it.
+		if (next(it) == nextSignature)
+			++it;
+		else
 		{
-			for (begin++; begin != end; begin++)
-				solAssert((*begin)->isConstructor(), "All functions in range expected to be constructors!");
-			continue;
+			// We have multiple non-overridden functions with the same signature in the bases.
+			auto const& name = (*it)->name();
+
+			SecondarySourceLocation ssl;
+			for (;it != nextSignature; ++it)
+				ssl.append("Definition here: ", (*it)->location());
+
+			m_errorReporter.typeError(
+				_contract.location(),
+				ssl,
+				"Derived contract must override function \"" +
+				name +
+				"\". Function with the same name and parameter types defined in two or more base classes."
+			);
 		}
-
-		// Function has been explicitly overridden
-		if (contains_if(
-			contractFuncs,
-			[&] (FunctionDefinition const* _f) {
-				return hasEqualNameAndParameters(*_f, **it);
-			}
-		))
-			continue;
-
-		set<FunctionDefinition const*> ambiguousFunctions;
-		SecondarySourceLocation ssl;
-
-		for (;begin != end; begin++)
-		{
-			ambiguousFunctions.insert(*begin);
-			ssl.append("Definition here: ", (*begin)->location());
-		}
-
-		if (ambiguousFunctions.size() == 1)
-			continue;
-
-		m_errorReporter.typeError(
-			_contract.location(),
-			ssl,
-			"Derived contract must override function \"" +
-			(*it)->name() +
-			"\". Function with the same name and parameter types defined in two or more base classes."
-		);
 	}
 }
 
@@ -797,31 +780,34 @@ void ContractLevelChecker::checkOverrideList(FunctionMultiSet const& _funcSet, F
 		);
 }
 
-ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::baseFunctionsToOverride(ContractDefinition const* _contract) const
+std::set<FunctionDefinition const*> const& ContractLevelChecker::nonOverriddenBaseFunctions(ContractDefinition const* _contract) const
 {
-	if (!m_baseFunctionsToOverride.count(_contract))
+	if (!m_nonOverriddenBaseFunctions.count(_contract))
 	{
-		FunctionMultiSet set;
+		std::set<FunctionDefinition const*> nonOverriddenBaseFunctionSet;
+		std::set<FunctionDefinition const*> overriddenInBases;
+
 		auto const& directBases = resolveDirectBaseContracts(*_contract);
-
-		std::set<FunctionDefinition const*> overriddenInBase;
-
+		// Add functions in direct bases and collect the functions they override.
 		for (auto const* base: directBases)
 			for (auto const* fn: base->definedFunctions())
-			{
-				set.insert(fn);
-				overriddenInBase += fn->annotation().baseFunctions;
-			}
+				if (!fn->isConstructor())
+				{
+					nonOverriddenBaseFunctionSet.insert(fn);
+					overriddenInBases += fn->annotation().baseFunctions;
+				}
 
+		// For each direct base, propagate their own non-overridden base functions, unless they are
+		// already overridden by any of the functions in any other of the direct bases.
 		for (auto const* base: directBases)
-			for (auto const& func: baseFunctionsToOverride(base))
-				if (!overriddenInBase.count(func))
-					set.insert(func);
+			for (auto const* function: nonOverriddenBaseFunctions(base))
+				if (!overriddenInBases.count(function))
+					nonOverriddenBaseFunctionSet.insert(function);
 
-		m_baseFunctionsToOverride[_contract] = set;
+		m_nonOverriddenBaseFunctions[_contract] = nonOverriddenBaseFunctionSet;
 	}
 
-	return m_baseFunctionsToOverride[_contract];
+	return m_nonOverriddenBaseFunctions[_contract];
 }
 
 ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract) const
