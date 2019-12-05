@@ -677,33 +677,33 @@ The JSON output typically consists of an array of nodes (with an associated ``no
 
 Fields:
 
-- absolutePath
-- exportedSymbols
+- ``absolutePath``
+- ``exportedSymbols``
 - ``id``
-- nodeType
+- ``nodeType``: The type of node/declaration
 - ``baseContracts``: Contracts this contract inherits from
 - ``contractDependencies``: Libraries this contract uses
 - ``contractKind``: Is this an interface, contract, or library
-- documentation
-- fullyImplemented
-- linearizedBaseContracts
+- ``documentation``
+- ``fullyImplemented``: ``false`` if this is an abstract contract
+- ``linearizedBaseContracts``
 - ``name``: User-defined name of the contract, function, library or variable
-- body
+- ``body``: Body of the node that likely contains further nodes
 - ``src``:
-- statements
+- ``statements``
 - implemented
-- kind
+- ``kind``: Human readable node type
 - modifiers
 - parameters
-- constant
+- ``constant``: Is parameter declared as a constant
 - scope
 - stateVariable
-- storageLocation
+- ``storageLocation``: Memory storage location for variable
 - typeDescriptions
     - typeIdentifier
     - typeString
 - typeName
 - returnParameterTypes
 - value
-- visibility
+- ``visibility``: Visibility of the function or variable
 - stateMutability
