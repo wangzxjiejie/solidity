@@ -621,16 +621,14 @@ void ContractLevelChecker::checkBaseABICompatibility(ContractDefinition const& _
 
 void ContractLevelChecker::checkAmbiguousOverrides(ContractDefinition const& _contract) const
 {
-	vector<FunctionDefinition const*> contractFuncs = _contract.definedFunctions();
+	auto const& contractFuncs = _contract.definedFunctions();
 
-	auto const resolvedBases = resolveDirectBaseContracts(_contract);
-
-	FunctionMultiSet inheritedFuncs = inheritedFunctions(&_contract, true);
+	FunctionMultiSet functionsToOverride = baseFunctionsToOverride(&_contract);
 
 	// Check the sets of the most-inherited functions
-	for (auto it = inheritedFuncs.cbegin(); it != inheritedFuncs.cend(); it = inheritedFuncs.upper_bound(*it))
+	for (auto it = functionsToOverride.cbegin(); it != functionsToOverride.cend(); it = functionsToOverride.upper_bound(*it))
 	{
-		auto [begin, end] = inheritedFuncs.equal_range(*it);
+		auto [begin, end] = functionsToOverride.equal_range(*it);
 
 		// Only one function
 		if (next(begin) == end)
@@ -799,40 +797,54 @@ void ContractLevelChecker::checkOverrideList(FunctionMultiSet const& _funcSet, F
 		);
 }
 
-ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract, bool removeOverriddenBaseFunctions) const
+ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::baseFunctionsToOverride(ContractDefinition const* _contract) const
 {
-	auto& inheritedFunctionSet = removeOverriddenBaseFunctions ? m_inheritedFunctionsWithoutOverriddenBaseFunctions : m_inheritedFunctions;
-	if (!inheritedFunctionSet.count(_contract))
+	if (!m_baseFunctionsToOverride.count(_contract))
 	{
 		FunctionMultiSet set;
 		auto const& directBases = resolveDirectBaseContracts(*_contract);
 
+		std::set<FunctionDefinition const*> overriddenInBase;
+
 		for (auto const* base: directBases)
+			for (auto const* fn: base->definedFunctions())
+			{
+				set.insert(fn);
+				overriddenInBase += fn->annotation().baseFunctions;
+			}
+
+		for (auto const* base: directBases)
+			for (auto const& func: baseFunctionsToOverride(base))
+				if (!overriddenInBase.count(func))
+					set.insert(func);
+
+		m_baseFunctionsToOverride[_contract] = set;
+	}
+
+	return m_baseFunctionsToOverride[_contract];
+}
+
+ContractLevelChecker::FunctionMultiSet const& ContractLevelChecker::inheritedFunctions(ContractDefinition const* _contract) const
+{
+	if (!m_inheritedFunctions.count(_contract))
+	{
+		FunctionMultiSet set;
+
+		for (auto const* base: resolveDirectBaseContracts(*_contract))
 		{
 			std::set<FunctionDefinition const*, LessFunction> tmpSet =
 				convertContainer<decltype(tmpSet)>(base->definedFunctions());
 
-			for (auto const& func: inheritedFunctions(base, removeOverriddenBaseFunctions))
+			for (auto const& func: inheritedFunctions(base))
 				tmpSet.insert(func);
 
 			set += tmpSet;
 		}
 
-		if (removeOverriddenBaseFunctions)
-			for (auto const* base: directBases)
-				 for (auto const* functionInBase: base->definedFunctions())
-					 for (auto [it, end] = set.equal_range(functionInBase); it != end;)
-					 {
-						 if (functionInBase->annotation().baseFunctions.count(*it))
-							 it = set.erase(it);
-						 else
-							 ++it;
-					 }
-
-		inheritedFunctionSet[_contract] = set;
+		m_inheritedFunctions[_contract] = set;
 	}
 
-	return inheritedFunctionSet[_contract];
+	return m_inheritedFunctions[_contract];
 }
 
 ContractLevelChecker::ModifierMultiSet const& ContractLevelChecker::inheritedModifiers(ContractDefinition const* _contract) const
