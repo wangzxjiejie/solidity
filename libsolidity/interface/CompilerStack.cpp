@@ -314,10 +314,13 @@ bool CompilerStack::analyze()
 					// Note that we now reference contracts by their fully qualified names, and
 					// thus contracts can only conflict if declared in the same source file.  This
 					// should already cause a double-declaration error elsewhere.
+					/*
 					solAssert(
 						m_contracts.find(contract->fullyQualifiedName()) == m_contracts.end(),
 						"Contract already present - name clash?"
 					);
+					*/
+					solAssert(m_hasError, "");
 					m_contracts[contract->fullyQualifiedName()].contract = contract;
 				}
 			}
