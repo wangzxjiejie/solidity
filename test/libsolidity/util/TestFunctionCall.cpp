@@ -190,13 +190,11 @@ string TestFunctionCall::formatBytesParameters(
 	ErrorReporter& _errorReporter,
 	bytes const& _bytes,
 	string const& _signature,
-	dev::solidity::test::ParameterList const& _parameters,
+	ParameterList const& _parameters,
 	bool _highlight,
 	bool _failure
 ) const
 {
-	using ParameterList = dev::solidity::test::ParameterList;
-
 	stringstream os;
 
 	if (_bytes.empty())

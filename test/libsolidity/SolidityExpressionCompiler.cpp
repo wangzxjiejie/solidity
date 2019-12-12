@@ -131,7 +131,6 @@ bytes compileFirstExpression(
 	for (ASTPointer<ASTNode> const& node: sourceUnit->nodes())
 		if (ContractDefinition* contract = dynamic_cast<ContractDefinition*>(node.get()))
 		{
-			ErrorReporter errorReporter(errors);
 			TypeChecker typeChecker(dev::test::Options::get().evmVersion(), errorReporter);
 			BOOST_REQUIRE(typeChecker.checkTypeRequirements(*contract));
 		}
