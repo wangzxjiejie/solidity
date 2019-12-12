@@ -29,7 +29,7 @@ using namespace std;
 using namespace dev::solidity;
 
 // TODO: Fix Boost...
-BOOST_TEST_DONT_PRINT_LOG_VALUE(dev::bytes);
+BOOST_TEST_DONT_PRINT_LOG_VALUE(dev::bytes)
 
 namespace dev
 {
