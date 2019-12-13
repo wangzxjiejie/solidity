@@ -40,13 +40,7 @@ namespace tools
 class Upgrade
 {
 public:
-	Upgrade(
-		std::string const& _source,
-		std::vector<UpgradeChange>& _changes
-	):
-		m_source(_source),
-		m_changes(_changes)
-	{}
+	Upgrade(std::vector<UpgradeChange>& _changes): m_changes(_changes) {}
 
 protected:
 	/// A reference to a suite-specific set of changes.
@@ -62,11 +56,8 @@ protected:
 class AnalysisUpgrade: public Upgrade, public ASTConstVisitor
 {
 public:
-	AnalysisUpgrade(
-		std::string const& _source,
-		std::vector<UpgradeChange>& _changes
-	):
-		Upgrade(_source, _changes),
+	AnalysisUpgrade(std::vector<UpgradeChange>& _changes):
+		Upgrade(_changes),
 		m_errorReporter(m_errors),
 		m_overrideChecker(m_errorReporter)
 	{}

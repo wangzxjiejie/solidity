@@ -43,6 +43,7 @@ namespace tools
 static string const g_argHelp = "help";
 static string const g_argVersion = "version";
 static string const g_argInputFile = "input-file";
+static string const g_argModules = "modules";
 static string const g_argDryRun = "dry-run";
 static string const g_argUnsafe = "unsafe";
 static string const g_argVerbose = "verbose";
@@ -164,6 +165,36 @@ Allowed options)",
 		return false;
 	}
 
+	if (m_args.count(g_argModules))
+	{
+		vector<string> moduleArgs;
+		auto modules = boost::split(
+			moduleArgs, m_args[g_argModules].as<string>(), boost::is_any_of(",")
+		);
+
+		/// All modules are activated by default. Clear them before activating single ones.
+		m_suite.deactivateModules();
+
+		for (string const& module: modules)
+		{
+			if (module == "constructor")
+				m_suite.activateModule(Module::ConstructorKeyword);
+			else if (module == "visibility")
+				m_suite.activateModule(Module::VisibilitySpecifier);
+			else if (module == "abstract")
+				m_suite.activateModule(Module::AbstractContract);
+			else if (module == "override")
+				m_suite.activateModule(Module::OverridingFunction);
+			else if (module == "virtual")
+				m_suite.activateModule(Module::VirtualFunction);
+			else
+			{
+				error() << "Unknown upgrade module \"" + module + "\"" << endl;
+				return false;
+			}
+		}
+	}
+
 	/// TODO Share with solc commandline interface.
 	if (m_args.count(g_argAllowPaths))
 	{
@@ -183,6 +214,7 @@ Allowed options)",
 			m_allowedDirectories.push_back(filesystem_path);
 		}
 	}
+
 
 	return true;
 }
@@ -285,7 +317,7 @@ void SourceUpgrade::runUpgrade()
 
 		if (recompile)
 		{
-			m_upgrades.reset();
+			m_suite.reset();
 			resetCompiler();
 			tryCompile();
 		}
@@ -303,9 +335,9 @@ bool SourceUpgrade::analyzeAndUpgrade(pair<string, string> const& _sourceCode)
 	if (m_compiler->state() >= CompilerStack::State::AnalysisPerformed)
 		m_suite.analyze(m_compiler->ast(_sourceCode.first));
 
-	if (!m_upgrades.changes().empty())
+	if (!m_suite.changes().empty())
 	{
-		auto& change = m_upgrades.changes().front();
+		auto& change = m_suite.changes().front();
 
 		if (verbose)
 			change.log(true);
@@ -334,6 +366,13 @@ void SourceUpgrade::applyChange(
 )
 {
 	bool dryRun = m_args.count(g_argDryRun);
+	bool verbose = m_args.count(g_argVerbose);
+
+	if (verbose)
+	{
+		log() << "Applying change to " << _sourceCode.first << endl << endl;
+		log() << _change.patch();
+	}
 
 	_change.apply();
 	m_sourceCodes[_sourceCode.first] = _change.source();
@@ -358,7 +397,7 @@ void SourceUpgrade::printStatistics() const
 	out() << "After upgrade:" << endl;
 	out() << endl;
 	error() << "Found " << m_compiler->errors().size() << " errors." << endl;
-	success() << "Found " << m_upgrades.changes().size() << " upgrades." << endl;
+	success() << "Found " << m_suite.changes().size() << " upgrades." << endl;
 }
 
 bool SourceUpgrade::readInputFiles()

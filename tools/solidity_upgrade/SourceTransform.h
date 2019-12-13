@@ -140,6 +140,22 @@ public:
 			") " + _expression
 		);
 	}
+
+	/// Searches for the `function` keyword and its identifier and replaces
+	/// both by the expression given.
+	/// E.g. `function Storage() {}` -> `constructor() {}`
+	static std::string replaceFunctionName(
+		langutil::SourceLocation const& _location,
+		std::string const& _name,
+		std::string const& _expression
+	)
+	{
+		return regex_replace(
+			_location.text(),
+			std::regex{"(\\bfunction\\s*" + _name + "\\b)"},
+			_expression
+		);
+	}
 };
 }
 

@@ -1,4 +1,4 @@
-/*
+﻿/*
 	This file is part of solidity.
 
 	solidity is free software: you can redistribute it and/or modify
@@ -17,6 +17,7 @@
 #pragma once
 
 #include "UpgradeChange.h"
+#include "Upgrade050.h"
 #include "Upgrade060.h"
 
 #include <libsolidity/interface/CompilerStack.h>
@@ -66,9 +67,19 @@ private:
 	public:
 		void analyze(SourceUnit const& _sourceUnit)
 		{
-			AbstractContract{_source, m_changes}.analyze(_sourceUnit);
-			OverridingFunction{_source, m_changes}.analyze(_sourceUnit);
-			VirtualFunction{_source, m_changes}.analyze(_sourceUnit);
+			/// Solidity 0.5.0
+			if (isActivated(Module::ConstructorKeyword))
+				ConstructorKeyword{m_changes}.analyze(_sourceUnit);
+			if (isActivated(Module::VisibilitySpecifier))
+				VisibilitySpecifier{m_changes}.analyze(_sourceUnit);
+
+			/// Solidity 0.6.0
+			if (isActivated(Module::AbstractContract))
+				AbstractContract{m_changes}.analyze(_sourceUnit);
+			if (isActivated(Module::OverridingFunction))
+				OverridingFunction{m_changes}.analyze(_sourceUnit);
+			if (isActivated(Module::VirtualFunction))
+				VirtualFunction{m_changes}.analyze(_sourceUnit);
 		}
 
 		void activateModule(Module _module) { m_modules.insert(_module); }

@@ -3,6 +3,7 @@ add_executable(solidity-upgrade
     solidity_upgrade/UpgradeChange.h
     solidity_upgrade/UpgradeChange.cpp
     solidity_upgrade/UpgradeSuite.h
+    solidity_upgrade/Upgrade050.cpp
     solidity_upgrade/Upgrade060.cpp
 	solidity_upgrade/SourceTransform.h
     solidity_upgrade/SourceUpgrade.cpp
