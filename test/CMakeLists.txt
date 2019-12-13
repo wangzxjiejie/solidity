@@ -27,6 +27,7 @@ detect_stray_source_files("${contracts_sources}" "contracts/")
 set(libdevcore_sources
     libdevcore/Checksum.cpp
     libdevcore/CommonData.cpp
+    libdevcore/FixedHash.cpp
     libdevcore/IndentedWriter.cpp
     libdevcore/IpfsHash.cpp
     libdevcore/IterateReplacing.cpp
