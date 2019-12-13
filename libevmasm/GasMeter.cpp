@@ -19,8 +19,6 @@
 
 #include <libevmasm/KnownState.h>
 
-#include <libdevcore/FixedHash.h>
-
 using namespace std;
 using namespace dev;
 using namespace dev::eth;
@@ -181,7 +179,7 @@ GasMeter::GasConsumption GasMeter::estimateMax(AssemblyItem const& _item, bool _
 		case Instruction::EXP:
 			gas = GasCosts::expGas;
 			if (u256 const* value = classes.knownConstant(m_state->relativeStackElement(-1)))
-				gas += GasCosts::expByteGas(m_evmVersion) * (32 - (h256(*value).firstBitSet() / 8));
+				gas += GasCosts::expByteGas(m_evmVersion) * (boost::multiprecision::msb(*value) / 8);
 			else
 				gas += GasCosts::expByteGas(m_evmVersion) * 32;
 			break;

@@ -118,22 +118,6 @@ public:
 	/// @returns a constant reference to the object's data as an STL array.
 	std::array<uint8_t, N> const& asArray() const { return m_data; }
 
-	/// Returns the index of the first bit set to one, or size() * 8 if no bits are set.
-	inline unsigned firstBitSet() const
-	{
-		unsigned ret = 0;
-		for (auto d: m_data)
-			if (d)
-			{
-				for (;; ++ret, d <<= 1)
-					if (d & 0x80)
-						return ret;
-			}
-			else
-				ret += 8;
-		return ret;
-	}
-
 	void clear() { m_data.fill(0); }
 
 private:
