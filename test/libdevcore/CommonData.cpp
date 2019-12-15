@@ -137,6 +137,11 @@ BOOST_AUTO_TEST_CASE(test_format_number)
 	);
 }
 
+BOOST_AUTO_TEST_CASE(test_format_string_or_number)
+{
+	
+}
+
 BOOST_AUTO_TEST_SUITE_END()
 
 }
