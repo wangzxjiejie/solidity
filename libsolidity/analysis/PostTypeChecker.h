@@ -39,6 +39,7 @@ namespace solidity
  *  - whether there are circular references in constant state variables
  *  - whether override specifiers are actually contracts
  *  - whether a modifier is in a function header
+ *  - whether an event is used outside of an emit statement
  *
  *  When adding a new checker, make sure a visitor that forwards calls that your
  *  checker uses exists in PostTypeChecker. Add missing ones.
@@ -69,6 +70,11 @@ private:
 
 	bool visit(VariableDeclaration const& _variable) override;
 	void endVisit(VariableDeclaration const& _variable) override;
+
+	bool visit(EmitStatement const& _emit) override;
+	void endVisit(EmitStatement const& _emit) override;
+
+	bool visit(FunctionCall const& _functionCall) override;
 
 	bool visit(Identifier const& _identifier) override;
 
