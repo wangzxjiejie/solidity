@@ -26,11 +26,7 @@
 #include <map>
 #include <vector>
 
-namespace dev
-{
-namespace solidity
-{
-namespace smt
+namespace solidity::frontend::smt
 {
 
 /**
@@ -69,6 +65,4 @@ private:
 	std::vector<smt::Expression> m_assertions;
 };
 
-}
-}
 }

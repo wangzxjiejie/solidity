@@ -32,8 +32,9 @@
 #include <functional>
 
 using namespace std;
-using namespace dev;
-using namespace dev::solidity;
+using namespace solidity;
+using namespace solidity::frontend;
+using namespace solidity::util;
 
 class IDDispenser
 {

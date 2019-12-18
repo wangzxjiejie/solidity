@@ -39,15 +39,13 @@
 #include <string>
 #include <vector>
 
-namespace langutil
+namespace solidity::langutil
 {
 class ErrorReporter;
 struct SourceLocation;
 }
 
-namespace dev
-{
-namespace solidity
+namespace solidity::frontend
 {
 
 class BMC: public SMTEncoder
@@ -187,5 +185,4 @@ private:
 	std::shared_ptr<smt::SolverInterface> m_interface;
 };
 
-}
 }

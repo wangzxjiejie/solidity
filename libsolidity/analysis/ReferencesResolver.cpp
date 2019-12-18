@@ -40,11 +40,9 @@
 #include <boost/range/adaptor/transformed.hpp>
 
 using namespace std;
-using namespace langutil;
+using namespace solidity::langutil;
 
-namespace dev
-{
-namespace solidity
+namespace solidity::frontend
 {
 
 bool ReferencesResolver::resolve(ASTNode const& _root)
@@ -500,5 +498,4 @@ void ReferencesResolver::fatalDeclarationError(SourceLocation const& _location, 
 	m_errorReporter.fatalDeclarationError(_location, _description);
 }
 
-}
 }

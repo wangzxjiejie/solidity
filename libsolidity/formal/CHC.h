@@ -38,9 +38,7 @@
 
 #include <set>
 
-namespace dev
-{
-namespace solidity
+namespace solidity::frontend
 {
 
 class CHC: public SMTEncoder
@@ -216,5 +214,4 @@ private:
 	smt::SMTSolverChoice m_enabledSolvers;
 };
 
-}
 }

@@ -21,8 +21,7 @@
 #include <libdevcore/CommonIO.h>
 
 using namespace std;
-using namespace dev;
-using namespace dev::solidity::smt;
+using namespace solidity::frontend::smt;
 
 Z3Interface::Z3Interface():
 	m_solver(m_context)

@@ -29,11 +29,9 @@
 #include <boost/algorithm/string.hpp>
 
 using namespace std;
-using namespace langutil;
+using namespace solidity::langutil;
 
-namespace dev
-{
-namespace solidity
+namespace solidity::frontend
 {
 
 NameAndTypeResolver::NameAndTypeResolver(
@@ -785,5 +783,4 @@ string DeclarationRegistrationHelper::currentCanonicalName() const
 	return ret;
 }
 
-}
 }

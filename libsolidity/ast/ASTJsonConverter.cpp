@@ -36,11 +36,9 @@
 #include <algorithm>
 
 using namespace std;
-using namespace langutil;
+using namespace solidity::langutil;
 
-namespace dev
-{
-namespace solidity
+namespace solidity::frontend
 {
 
 ASTJsonConverter::ASTJsonConverter(bool _legacy, map<string, unsigned> _sourceIndices):
@@ -892,5 +890,4 @@ string ASTJsonConverter::type(VariableDeclaration const& _varDecl)
 	return _varDecl.annotation().type ? _varDecl.annotation().type->toString() : "Unknown";
 }
 
-}
 }

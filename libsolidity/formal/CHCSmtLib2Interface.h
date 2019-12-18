@@ -25,11 +25,7 @@
 
 #include <libsolidity/formal/SMTLib2Interface.h>
 
-namespace dev
-{
-namespace solidity
-{
-namespace smt
+namespace solidity::frontend::smt
 {
 
 class CHCSmtLib2Interface: public CHCSolverInterface
@@ -75,6 +71,4 @@ private:
 	ReadCallback::Callback m_smtCallback;
 };
 
-}
-}
 }

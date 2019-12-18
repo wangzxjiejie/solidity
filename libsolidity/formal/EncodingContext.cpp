@@ -20,8 +20,9 @@
 #include <libsolidity/formal/SymbolicTypes.h>
 
 using namespace std;
-using namespace dev;
-using namespace dev::solidity::smt;
+using namespace solidity;
+using namespace solidity::util;
+using namespace solidity::frontend::smt;
 
 EncodingContext::EncodingContext():
 	m_thisAddress(make_unique<SymbolicAddressVariable>("this", *this))

@@ -31,11 +31,7 @@
 #include <string>
 #include <vector>
 
-namespace dev
-{
-namespace solidity
-{
-namespace smt
+namespace solidity::frontend::smt
 {
 
 class SMTLib2Interface: public SolverInterface, public boost::noncopyable
@@ -85,6 +81,4 @@ private:
 	ReadCallback::Callback m_smtCallback;
 };
 
-}
-}
 }

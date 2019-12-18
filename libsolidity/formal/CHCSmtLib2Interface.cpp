@@ -30,9 +30,10 @@
 #include <stdexcept>
 
 using namespace std;
-using namespace dev;
-using namespace dev::solidity;
-using namespace dev::solidity::smt;
+using namespace solidity;
+using namespace solidity::util;
+using namespace solidity::frontend;
+using namespace solidity::frontend::smt;
 
 CHCSmtLib2Interface::CHCSmtLib2Interface(
 	map<h256, string> const& _queryResponses,

@@ -22,8 +22,8 @@
 #include <boost/range/algorithm/sort.hpp>
 
 using namespace std;
-using namespace langutil;
-using namespace dev::solidity;
+using namespace solidity::langutil;
+using namespace solidity::frontend;
 
 bool ControlFlowAnalyzer::analyze(ASTNode const& _astRoot)
 {
