@@ -472,7 +472,7 @@ BOOST_AUTO_TEST_CASE(create_subnode)
 	BOOST_CHECK(logTopic(0, 2) == keccak256(string("eth")));
 
 	// Verify that the sub-node owner is now account(1).
-	u256 namehash = keccak256(h256(0x00).asBytes() + keccak256("eth").asBytes());
+	u256 namehash = keccak256(h256{}.asBytes() + keccak256("eth").asBytes());
 	BOOST_CHECK(callContractFunction("owner(bytes32)", namehash) == encodeArgs(ACCOUNT(1)));
 }
 
