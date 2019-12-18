@@ -294,11 +294,11 @@ Json::Value Assembly::assemblyJSON(StringMap const& _sourceCodes) const
 			break;
 		case PushSub:
 			collection.append(
-				createJsonValue("PUSH [$]", i.location().start, i.location().end, dev::toString(h256(i.data()))));
+				createJsonValue("PUSH [$]", i.location().start, i.location().end, dev::toHex(h256(i.data()))));
 			break;
 		case PushSubSize:
 			collection.append(
-				createJsonValue("PUSH #[$]", i.location().start, i.location().end, dev::toString(h256(i.data()))));
+				createJsonValue("PUSH #[$]", i.location().start, i.location().end, dev::toHex(h256(i.data()))));
 			break;
 		case PushProgramSize:
 			collection.append(
