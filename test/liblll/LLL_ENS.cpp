@@ -489,7 +489,7 @@ BOOST_AUTO_TEST_CASE(create_subnode_fail)
 	BOOST_REQUIRE(callContractFunction("setSubnodeOwner(bytes32,bytes32,address)", 0x00, keccak256(string("eth")), ACCOUNT(1)) == encodeArgs());
 
 	// Verify that the sub-node owner remains at default zero address.
-	u256 namehash = keccak256(h256(0x00).asBytes() + keccak256("eth").asBytes());
+	u256 namehash = keccak256(h256{}.asBytes() + keccak256("eth").asBytes());
 	BOOST_CHECK(callContractFunction("owner(bytes32)", namehash) == encodeArgs(0));
 }
 
