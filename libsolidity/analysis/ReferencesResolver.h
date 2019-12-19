@@ -25,6 +25,7 @@
 #include <libsolidity/ast/ASTVisitor.h>
 #include <libsolidity/ast/ASTAnnotations.h>
 #include <liblangutil/EVMVersion.h>
+#include <libyul/optimiser/ASTWalker.h>
 
 #include <boost/noncopyable.hpp>
 #include <list>
