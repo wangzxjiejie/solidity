@@ -162,9 +162,9 @@ BOOST_AUTO_TEST_CASE(period_not_as_identifier_start)
 
 BOOST_AUTO_TEST_CASE(period_in_identifier_spaced)
 {
-	CHECK_ERROR("{ let x. y:u256 }", ParserError, "Expected ':' but got identifier");
-	CHECK_ERROR("{ let x .y:u256 }", ParserError, "Expected ':' but got '.'");
-	CHECK_ERROR("{ let x . y:u256 }", ParserError, "Expected ':' but got '.'");
+	CHECK_ERROR("{ let x. y:u256 }", ParserError, "Call or assignment expected");
+	CHECK_ERROR("{ let x .y:u256 }", ParserError, "Literal or identifier expected");
+	CHECK_ERROR("{ let x . y:u256 }", ParserError, "Literal or identifier expected");
 }
 
 BOOST_AUTO_TEST_CASE(period_in_identifier_start)
@@ -235,12 +235,12 @@ BOOST_AUTO_TEST_CASE(tokens_as_identifers)
 	BOOST_CHECK(successParse("{ let bool:u256 := 1:u256 }"));
 }
 
-BOOST_AUTO_TEST_CASE(lacking_types)
+BOOST_AUTO_TEST_CASE(optional_types)
 {
-	CHECK_ERROR("{ let x := 1:u256 }", ParserError, "Expected ':' but got ':='");
-	CHECK_ERROR("{ let x:u256 := 1 }", ParserError, "Expected ':' but got '}'");
-	CHECK_ERROR("{ function f(a) {} }", ParserError, "Expected ':' but got ')'");
-	CHECK_ERROR("{ function f(a:u256) -> b {} }", ParserError, "Expected ':' but got '{'");
+	BOOST_CHECK(successParse("{ let x := 1:u256 }"));
+	BOOST_CHECK(successParse("{ let x:u256 := 1 }"));
+	BOOST_CHECK(successParse("{ function f(a) {} }"));
+	BOOST_CHECK(successParse("{ function f(a:u256) -> b {} }"));
 }
 
 BOOST_AUTO_TEST_CASE(invalid_types)
@@ -532,7 +532,6 @@ BOOST_AUTO_TEST_CASE(builtins_parser)
 {
 	struct SimpleDialect: public Dialect
 	{
-		SimpleDialect(): Dialect(AsmFlavour::Strict) {}
 		BuiltinFunction const* builtin(YulString _name) const override
 		{
 			return _name == "builtin"_yulstring ? &f : nullptr;
@@ -552,7 +551,6 @@ BOOST_AUTO_TEST_CASE(builtins_analysis)
 {
 	struct SimpleDialect: public Dialect
 	{
-		SimpleDialect(): Dialect(AsmFlavour::Strict) {}
 		BuiltinFunction const* builtin(YulString _name) const override
 		{
 			return _name == "builtin"_yulstring ? &f : nullptr;
