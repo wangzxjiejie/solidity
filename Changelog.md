@@ -1,6 +1,7 @@
 ### 0.6.1 (unreleased)
 
 Language Features:
+ * Inline Assembly: Support literals ``true`` and ``false``.
 
 
 Compiler Features:
