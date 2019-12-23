@@ -43,6 +43,7 @@
 
 using namespace std;
 using namespace solidity;
+using namespace solidity::util;
 using namespace solidity::langutil;
 using namespace solidity::frontend;
 

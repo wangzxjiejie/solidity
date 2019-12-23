@@ -242,7 +242,7 @@ vector<Declaration const*> NameAndTypeResolver::cleanedDeclarations(
 
 void NameAndTypeResolver::warnVariablesNamedLikeInstructions()
 {
-	for (auto const& instruction: dev::eth::c_instructions)
+	for (auto const& instruction: evmasm::c_instructions)
 	{
 		string const instructionName{boost::algorithm::to_lower_copy(instruction.first)};
 		auto declarations = nameFromCurrentScope(instructionName, true);
@@ -458,7 +458,7 @@ vector<_T const*> NameAndTypeResolver::cThreeMerge(list<list<_T const*>>& _toMer
 
 string NameAndTypeResolver::similarNameSuggestions(ASTString const& _name) const
 {
-	return quotedAlternativesList(m_currentScope->similarNames(_name));
+	return util::quotedAlternativesList(m_currentScope->similarNames(_name));
 }
 
 DeclarationRegistrationHelper::DeclarationRegistrationHelper(

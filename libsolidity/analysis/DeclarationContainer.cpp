@@ -118,7 +118,7 @@ bool DeclarationContainer::registerDeclaration(
 		return false;
 
 	vector<Declaration const*>& decls = _invisible ? m_invisibleDeclarations[*_name] : m_declarations[*_name];
-	if (!contains(decls, &_declaration))
+	if (!util::contains(decls, &_declaration))
 		decls.push_back(&_declaration);
 	return true;
 }
@@ -148,13 +148,13 @@ vector<ASTString> DeclarationContainer::similarNames(ASTString const& _name) con
 	for (auto const& declaration: m_declarations)
 	{
 		string const& declarationName = declaration.first;
-		if (stringWithinDistance(_name, declarationName, maximumEditDistance, MAXIMUM_LENGTH_THRESHOLD))
+		if (util::stringWithinDistance(_name, declarationName, maximumEditDistance, MAXIMUM_LENGTH_THRESHOLD))
 			similar.push_back(declarationName);
 	}
 	for (auto const& declaration: m_invisibleDeclarations)
 	{
 		string const& declarationName = declaration.first;
-		if (stringWithinDistance(_name, declarationName, maximumEditDistance, MAXIMUM_LENGTH_THRESHOLD))
+		if (util::stringWithinDistance(_name, declarationName, maximumEditDistance, MAXIMUM_LENGTH_THRESHOLD))
 			similar.push_back(declarationName);
 	}
 

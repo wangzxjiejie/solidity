@@ -403,7 +403,7 @@ void ReferencesResolver::endVisit(VariableDeclaration const& _variable)
 		else
 		{
 			errorString = "Data location must be " +
-			joinHumanReadable(
+			util::joinHumanReadable(
 				allowedDataLocations | boost::adaptors::transformed(locationToString),
 				", ",
 				" or "

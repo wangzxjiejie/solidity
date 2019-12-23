@@ -17,7 +17,7 @@
 
 #pragma once
 
-namespace solidity
+namespace solidity::frontend
 {
 
 class VariableDeclaration;

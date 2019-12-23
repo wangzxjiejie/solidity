@@ -35,7 +35,7 @@ using namespace solidity::frontend;
 CHC::CHC(
 	smt::EncodingContext& _context,
 	ErrorReporter& _errorReporter,
-	map<h256, string> const& _smtlib2Responses,
+	map<util::h256, string> const& _smtlib2Responses,
 	ReadCallback::Callback const& _smtCallback,
 	smt::SMTSolverChoice _enabledSolvers
 ):

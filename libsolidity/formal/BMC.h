@@ -39,6 +39,8 @@
 #include <string>
 #include <vector>
 
+using solidity::util::h256;
+
 namespace solidity::langutil
 {
 class ErrorReporter;

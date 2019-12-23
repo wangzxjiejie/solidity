@@ -198,7 +198,7 @@ Json::Value ASTJsonConverter::inlineAssemblyIdentifierToJson(pair<yul::Identifie
 
 void ASTJsonConverter::print(ostream& _stream, ASTNode const& _node)
 {
-	_stream << jsonPrettyPrint(toJson(_node));
+	_stream << util::jsonPrettyPrint(toJson(_node));
 }
 
 Json::Value&& ASTJsonConverter::toJson(ASTNode const& _node)
@@ -790,13 +790,13 @@ bool ASTJsonConverter::visit(ElementaryTypeNameExpression const& _node)
 bool ASTJsonConverter::visit(Literal const& _node)
 {
 	Json::Value value{_node.value()};
-	if (!dev::validateUTF8(_node.value()))
+	if (!util::validateUTF8(_node.value()))
 		value = Json::nullValue;
 	Token subdenomination = Token(_node.subDenomination());
 	std::vector<pair<string, Json::Value>> attributes = {
 		make_pair(m_legacy ? "token" : "kind", literalTokenKind(_node.token())),
 		make_pair("value", value),
-		make_pair(m_legacy ? "hexvalue" : "hexValue", toHex(asBytes(_node.value()))),
+		make_pair(m_legacy ? "hexvalue" : "hexValue", util::toHex(util::asBytes(_node.value()))),
 		make_pair(
 			"subdenomination",
 			subdenomination == Token::Illegal ?
@@ -867,13 +867,13 @@ string ASTJsonConverter::literalTokenKind(Token _token)
 {
 	switch (_token)
 	{
-	case dev::solidity::Token::Number:
+	case Token::Number:
 		return "number";
-	case dev::solidity::Token::StringLiteral:
-	case dev::solidity::Token::HexStringLiteral:
+	case Token::StringLiteral:
+	case Token::HexStringLiteral:
 		return "string";
-	case dev::solidity::Token::TrueLiteral:
-	case dev::solidity::Token::FalseLiteral:
+	case Token::TrueLiteral:
+	case Token::FalseLiteral:
 		return "bool";
 	default:
 		solAssert(false, "Unknown kind of literal token.");

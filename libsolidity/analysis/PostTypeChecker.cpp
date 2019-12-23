@@ -112,7 +112,7 @@ bool PostTypeChecker::visit(Identifier const& _identifier)
 
 VariableDeclaration const* PostTypeChecker::findCycle(VariableDeclaration const& _startingFrom)
 {
-	auto visitor = [&](VariableDeclaration const& _variable, CycleDetector<VariableDeclaration>& _cycleDetector, size_t _depth)
+	auto visitor = [&](VariableDeclaration const& _variable, util::CycleDetector<VariableDeclaration>& _cycleDetector, size_t _depth)
 	{
 		if (_depth >= 256)
 			m_errorReporter.fatalDeclarationError(_variable.location(), "Variable definition exhausting cyclic dependency validator.");
@@ -132,5 +132,5 @@ VariableDeclaration const* PostTypeChecker::findCycle(VariableDeclaration const&
 			if (_cycleDetector.run(*v))
 				return;
 	};
-	return CycleDetector<VariableDeclaration>(visitor).run(_startingFrom);
+	return util::CycleDetector<VariableDeclaration>(visitor).run(_startingFrom);
 }
