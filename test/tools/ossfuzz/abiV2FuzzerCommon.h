@@ -29,9 +29,9 @@ public:
 		std::string const& _contractName = {}
 	);
 protected:
-	dev::solidity::CompilerStack m_compiler;
+	solidity::frontend::CompilerStack m_compiler;
 	langutil::EVMVersion m_evmVersion;
-	dev::solidity::OptimiserSettings m_optimiserSettings = dev::solidity::OptimiserSettings::none();
+	solidity::frontend::OptimiserSettings m_optimiserSettings = solidity::frontend::OptimiserSettings::none();
 };
 }
 }

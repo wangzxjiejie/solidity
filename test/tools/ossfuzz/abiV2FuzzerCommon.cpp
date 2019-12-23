@@ -1,6 +1,6 @@
 #include <test/tools/ossfuzz/abiV2FuzzerCommon.h>
 
-using namespace dev::test::abiv2fuzzer;
+using namespace solidity::testabiv2fuzzer;
 
 SolidityCompilationFramework::SolidityCompilationFramework(langutil::EVMVersion _evmVersion)
 {

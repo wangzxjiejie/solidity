@@ -2,7 +2,7 @@
 
 using namespace std;
 using namespace dev;
-using namespace dev::test::abiv2fuzzer;
+using namespace solidity::testabiv2fuzzer;
 
 string ProtoConverter::getVarDecl(
 	string const& _type,

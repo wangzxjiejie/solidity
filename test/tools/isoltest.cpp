@@ -40,15 +40,15 @@
 #endif
 
 using namespace dev;
-using namespace dev::solidity;
-using namespace dev::solidity::test;
+using namespace solidity::frontend;
+using namespace solidity::frontend::test;
 using namespace dev::formatting;
 using namespace std;
 namespace po = boost::program_options;
 namespace fs = boost::filesystem;
 
 using TestCreator = TestCase::TestCaseCreator;
-using TestOptions = dev::test::IsolTestOptions;
+using TestOptions = solidity::testIsolTestOptions;
 
 struct TestStats
 {
@@ -399,7 +399,7 @@ int main(int argc, char const *argv[])
 {
 	setupTerminal();
 
-	dev::test::IsolTestOptions options(&TestTool::editor);
+	solidity::testIsolTestOptions options(&TestTool::editor);
 
 	try
 	{
@@ -414,12 +414,12 @@ int main(int argc, char const *argv[])
 		return 1;
 	}
 
-	bool disableSemantics = !dev::test::EVMHost::getVM(options.evmonePath.string());
+	bool disableSemantics = !solidity::testEVMHost::getVM(options.evmonePath.string());
 	if (disableSemantics)
 	{
-		cout << "Unable to find " << dev::test::evmoneFilename << ". Please provide the path using --evmonepath <path>." << endl;
+		cout << "Unable to find " << solidity::testevmoneFilename << ". Please provide the path using --evmonepath <path>." << endl;
 		cout << "You can download it at" << endl;
-		cout << dev::test::evmoneDownloadLink << endl;
+		cout << solidity::testevmoneDownloadLink << endl;
 		cout << endl << "--- SKIPPING ALL SEMANTICS TESTS ---" << endl << endl;
 	}
 
@@ -462,7 +462,7 @@ int main(int argc, char const *argv[])
 	cout << "." << endl;
 
 	if (disableSemantics)
-		cout << "\nNOTE: Skipped semantics tests because " << dev::test::evmoneFilename << " could not be found.\n" << endl;
+		cout << "\nNOTE: Skipped semantics tests because " << solidity::testevmoneFilename << " could not be found.\n" << endl;
 
 	return global_stats ? 0 : 1;
 }

@@ -26,8 +26,8 @@
 
 static evmc::VM evmone = evmc::VM{evmc_create_evmone()};
 
-using namespace dev::test::abiv2fuzzer;
-using namespace dev::test;
+using namespace solidity::testabiv2fuzzer;
+using namespace solidity::test;
 using namespace dev;
 using namespace std;
 

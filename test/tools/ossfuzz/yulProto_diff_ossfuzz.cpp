@@ -71,7 +71,7 @@ DEFINE_PROTO_FUZZER(Program const& _input)
 	AssemblyStack stack(
 		langutil::EVMVersion::berlin(),
 		AssemblyStack::Language::StrictAssembly,
-		dev::solidity::OptimiserSettings::full()
+		solidity::frontend::OptimiserSettings::full()
 	);
 
 	// Parse protobuf mutated YUL code
