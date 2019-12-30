@@ -181,10 +181,10 @@ namespace solidity
 	K(While, "while", 0)                                               \
 	\
 	/* Ether subdenominations */                                       \
-	K(SubWei, "wei", 0)                                                \
+	K(SubWei, "von", 0)                                                \
 	K(SubSzabo, "szabo", 0)                                            \
 	K(SubFinney, "finney", 0)                                          \
-	K(SubEther, "ether", 0)                                            \
+	K(SubEther, "lat", 0)                                            \
 	K(SubSecond, "seconds", 0)                                         \
 	K(SubMinute, "minutes", 0)                                         \
 	K(SubHour, "hours", 0)                                             \
