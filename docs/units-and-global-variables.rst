@@ -4,17 +4,23 @@ Units and Globally Available Variables
 
 .. index:: wei, finney, szabo, ether
 
-Ether Units
+LAT Units
 ===========
 
-A literal number can take a suffix of ``wei``, ``finney``, ``szabo`` or ``ether`` to specify a subdenomination of Ether, where Ether numbers without a postfix are assumed to be Wei.
+A literal number can take a suffix of ``von``, ``kvon``, ``mvon``,``gvon``, ``szabo``, ``finney``,``lat``, ``klat``, ``mlat`` or ``glat`` to specify a subdenomination of Lat, where Lat numbers without a postfix are assumed to be Wei.
 
 ::
 
-    assert(1 wei == 1);
+    assert(1 von == 1);
+    assert(1 kvon == 1e3);
+    assert(1 mvon == 1e6);
+    assert(1 gvon == 1e9);
     assert(1 szabo == 1e12);
     assert(1 finney == 1e15);
-    assert(1 ether == 1e18);
+    assert(1 lat == 1e18);
+    assert(1 lat == 1e21);
+    assert(1 lat == 1e24);
+    assert(1 lat == 1e27);
 
 The only effect of the subdenomination suffix is a multiplication by a power of ten.
 
